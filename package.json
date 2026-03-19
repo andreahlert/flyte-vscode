@@ -70,6 +70,21 @@
         "command": "flyte.refreshExplorer",
         "title": "Flyte: Refresh Explorer",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "flyte.addCluster",
+        "title": "Flyte: Add Cluster",
+        "icon": "$(add)"
+      },
+      {
+        "command": "flyte.removeCluster",
+        "title": "Flyte: Remove Cluster",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "flyte.setActiveCluster",
+        "title": "Flyte: Set Active Cluster",
+        "icon": "$(plug)"
       }
     ],
     "viewsContainers": {
@@ -83,6 +98,10 @@
     },
     "views": {
       "flyte-explorer": [
+        {
+          "id": "flyte.clusters",
+          "name": "Clusters"
+        },
         {
           "id": "flyte.environments",
           "name": "Environments"
@@ -104,6 +123,11 @@
     "menus": {
       "view/title": [
         {
+          "command": "flyte.addCluster",
+          "when": "view == flyte.clusters",
+          "group": "navigation"
+        },
+        {
           "command": "flyte.refreshExplorer",
           "when": "view =~ /^flyte\\./",
           "group": "navigation"
@@ -118,6 +142,16 @@
         {
           "command": "flyte.abort",
           "when": "viewItem == flyteRun",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.setActiveCluster",
+          "when": "viewItem == flyteCluster",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.removeCluster",
+          "when": "viewItem == flyteCluster",
           "group": "inline"
         }
       ]

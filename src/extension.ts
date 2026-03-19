@@ -5,6 +5,7 @@ import { EnvironmentTreeProvider } from './views/environmentTreeProvider.js';
 import { TaskTreeProvider } from './views/taskTreeProvider.js';
 import { RunTreeProvider } from './views/runTreeProvider.js';
 import { AppTreeProvider } from './views/appTreeProvider.js';
+import { ClusterTreeProvider } from './views/clusterTreeProvider.js';
 import { handleRunTask } from './commands/runCommand.js';
 import { handleDeploy } from './commands/deployCommand.js';
 import { handleBuild } from './commands/buildCommand.js';
@@ -32,8 +33,11 @@ export async function activate(
     );
   }
 
-  // CodeLens provider
-  const codeLensProvider = new FlyteCodeLensProvider();
+  // Cluster tree provider (must be created before CodeLens)
+  const clusterTreeProvider = new ClusterTreeProvider(context);
+
+  // CodeLens provider (receives cluster provider to check active cluster)
+  const codeLensProvider = new FlyteCodeLensProvider(clusterTreeProvider);
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(
       { language: FLYTE_LANGUAGE_ID, scheme: 'file' },
@@ -48,6 +52,7 @@ export async function activate(
   const appTreeProvider = new AppTreeProvider();
 
   context.subscriptions.push(
+    vscode.window.registerTreeDataProvider(VIEWS.CLUSTERS, clusterTreeProvider),
     vscode.window.registerTreeDataProvider(VIEWS.ENVIRONMENTS, envTreeProvider),
     vscode.window.registerTreeDataProvider(VIEWS.TASKS, taskTreeProvider),
     vscode.window.registerTreeDataProvider(VIEWS.RUNS, runTreeProvider),
@@ -66,11 +71,21 @@ export async function activate(
       runTreeProvider.refresh();
     }),
     vscode.commands.registerCommand(COMMANDS.REFRESH_EXPLORER, () => {
+      clusterTreeProvider.refresh();
       envTreeProvider.refresh();
       taskTreeProvider.refresh();
       runTreeProvider.refresh();
       appTreeProvider.refresh();
       codeLensProvider.refresh();
+    }),
+    vscode.commands.registerCommand(COMMANDS.ADD_CLUSTER, () => {
+      clusterTreeProvider.addCluster().then(() => codeLensProvider.refresh());
+    }),
+    vscode.commands.registerCommand(COMMANDS.REMOVE_CLUSTER, (item) => {
+      clusterTreeProvider.removeCluster(item).then(() => codeLensProvider.refresh());
+    }),
+    vscode.commands.registerCommand(COMMANDS.SET_ACTIVE_CLUSTER, (item) => {
+      clusterTreeProvider.setActive(item).then(() => codeLensProvider.refresh());
     }),
   );
 

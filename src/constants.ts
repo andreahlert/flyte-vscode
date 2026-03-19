@@ -10,6 +10,9 @@ export const COMMANDS = {
   SHOW_GRAPH: 'flyte.showGraph',
   REFRESH_RUNS: 'flyte.refreshRuns',
   REFRESH_EXPLORER: 'flyte.refreshExplorer',
+  ADD_CLUSTER: 'flyte.addCluster',
+  REMOVE_CLUSTER: 'flyte.removeCluster',
+  SET_ACTIVE_CLUSTER: 'flyte.setActiveCluster',
 } as const;
 
 export const VIEWS = {
@@ -17,6 +20,7 @@ export const VIEWS = {
   TASKS: 'flyte.tasks',
   RUNS: 'flyte.runs',
   APPS: 'flyte.apps',
+  CLUSTERS: 'flyte.clusters',
 } as const;
 
 export const CONFIG = {
