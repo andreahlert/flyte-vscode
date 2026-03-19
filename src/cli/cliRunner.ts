@@ -19,22 +19,24 @@ export function resetCliCache(): void {
   cachedCliPath = null;
 }
 
+function shellEscape(arg: string): string {
+  if (/^[a-zA-Z0-9._/:-]+$/.test(arg)) return arg;
+  return `'${arg.replace(/'/g, "'\\''")}'`;
+}
+
 export async function runInTerminal(
   command: string,
   args: string[],
   name?: string,
 ): Promise<vscode.Terminal> {
   const cliPath = await getCliPath();
-  const parts = cliPath.split(' ');
-  const shellPath = parts[0];
-  const shellArgs = [...parts.slice(1), command, ...args];
+  const fullCommand = [cliPath, command, ...args].map(shellEscape).join(' ');
 
   const terminal = vscode.window.createTerminal({
     name: name ?? `Flyte: ${command}`,
-    shellPath,
-    shellArgs,
   });
   terminal.show();
+  terminal.sendText(fullCommand);
   return terminal;
 }
 
@@ -43,7 +45,7 @@ export async function runTask(
   taskName: string,
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
-  return runInTerminal('run', [filePath, taskName, ...extraArgs], `Run: ${taskName}`);
+  return runInTerminal('run', ['--local', filePath, taskName, ...extraArgs], `Run: ${taskName}`);
 }
 
 export async function deploy(
