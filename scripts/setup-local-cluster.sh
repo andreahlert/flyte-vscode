@@ -187,9 +187,10 @@ start_manager() {
     exit 1
   fi
 
-  info "Starting Flyte Manager..."
+  info "Starting Flyte Manager as background daemon..."
   cd "$MANAGER_DIR"
-  "$MANAGER_BIN" --config config-local.yaml > "$MANAGER_LOG" 2>&1 &
+  nohup "$MANAGER_BIN" --config config-local.yaml > "$MANAGER_LOG" 2>&1 &
+  disown
   echo $! > "$MANAGER_PID_FILE"
 
   # Wait for health
