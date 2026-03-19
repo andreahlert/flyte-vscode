@@ -18,3 +18,4 @@ dist/**/*.d.ts.map
 examples/**
 **/.venv/**
 **/__pycache__/**
+scripts/record-demo.sh

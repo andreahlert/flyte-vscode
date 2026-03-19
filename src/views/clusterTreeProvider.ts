@@ -82,6 +82,71 @@ export class ClusterTreeProvider
   }
 
   async connectSelfHosted(): Promise<void> {
+    const choice = await vscode.window.showQuickPick(
+      [
+        {
+          label: '$(rocket) Create Local Cluster',
+          description: 'Set up a Flyte cluster on your machine',
+          value: 'local' as const,
+        },
+        {
+          label: '$(plug) Connect to Existing Cluster',
+          description: 'I already have Flyte running on Kubernetes',
+          value: 'existing' as const,
+        },
+      ],
+      { placeHolder: 'How would you like to set up your cluster?' },
+    );
+    if (!choice) return;
+
+    if (choice.value === 'local') {
+      return this.createLocalCluster();
+    }
+    return this.connectExistingCluster();
+  }
+
+  private async createLocalCluster(): Promise<void> {
+    const confirm = await vscode.window.showInformationMessage(
+      'This will create a local Flyte V2 cluster on your machine.\n\n' +
+      'What gets installed:\n' +
+      '- k3d (lightweight Kubernetes in Docker)\n' +
+      '- A single-node Kubernetes cluster\n' +
+      '- Flyte Manager (Runs, Queue, and Executor services)\n\n' +
+      'Requirements: Docker running, ~2GB free disk.\n' +
+      'The cluster runs entirely on your machine.',
+      { modal: true },
+      'Create Cluster',
+      'Cancel',
+    );
+    if (confirm !== 'Create Cluster') return;
+
+    const scriptPath = vscode.Uri.joinPath(
+      vscode.Uri.file(this.context.extensionPath),
+      'scripts',
+      'setup-local-cluster.sh',
+    ).fsPath;
+
+    const fs = await import('fs');
+    if (!fs.existsSync(scriptPath)) {
+      vscode.window.showErrorMessage(
+        'Setup script not found. Make sure the extension was installed correctly.',
+      );
+      return;
+    }
+
+    const terminal = vscode.window.createTerminal('Flyte: Local Cluster');
+    terminal.show();
+    terminal.sendText(`bash "${scriptPath}"`);
+
+    await this.saveCluster({
+      name: 'local',
+      endpoint: 'dns:///localhost:8090',
+      insecure: true,
+      type: 'self-hosted',
+    });
+  }
+
+  private async connectExistingCluster(): Promise<void> {
     const endpoint = await vscode.window.showInputBox({
       prompt: 'Flyte cluster endpoint',
       placeHolder: 'dns:///flyte.my-company.com',
