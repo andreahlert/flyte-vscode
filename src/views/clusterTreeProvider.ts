@@ -5,6 +5,7 @@ export interface ClusterConfig {
   endpoint: string;
   insecure: boolean;
   type: 'union' | 'self-hosted';
+  registry?: string;
 }
 
 const STORAGE_KEY = 'flyte.clusters';
@@ -143,6 +144,7 @@ export class ClusterTreeProvider
       endpoint: 'dns:///localhost:8090',
       insecure: true,
       type: 'self-hosted',
+      registry: 'localhost:5050',
     });
   }
 

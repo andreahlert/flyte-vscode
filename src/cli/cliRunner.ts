@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { discoverCli } from './cliDiscovery.js';
+import type { ClusterConfig } from '../views/clusterTreeProvider.js';
 
 let cachedCliPath: string | null = null;
 
@@ -20,8 +21,25 @@ export function resetCliCache(): void {
 }
 
 function shellEscape(arg: string): string {
-  if (/^[a-zA-Z0-9._/:-]+$/.test(arg)) return arg;
+  if (/^[a-zA-Z0-9._/:-=]+$/.test(arg)) return arg;
   return `'${arg.replace(/'/g, "'\\''")}'`;
+}
+
+function clusterArgs(cluster?: ClusterConfig): string[] {
+  if (!cluster) return [];
+  const args: string[] = [];
+  if (cluster.endpoint) {
+    args.push('--endpoint', cluster.endpoint);
+  }
+  if (cluster.insecure) {
+    args.push('--insecure');
+  }
+  return args;
+}
+
+function registryArgs(cluster?: ClusterConfig): string[] {
+  if (!cluster?.registry) return [];
+  return ['--image', `default=${cluster.registry}/flyte:latest`];
 }
 
 export async function runInTerminal(
@@ -45,33 +63,57 @@ export async function runTask(
   taskName: string,
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
-  return runInTerminal('run', ['--local', filePath, taskName, ...extraArgs], `Run: ${taskName}`);
+  return runInTerminal(
+    'run',
+    ['--local', filePath, taskName, ...extraArgs],
+    `Run: ${taskName}`,
+  );
 }
 
 export async function deploy(
   filePath: string,
+  cluster?: ClusterConfig,
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
-  return runInTerminal('deploy', [filePath, ...extraArgs], 'Flyte: Deploy');
+  return runInTerminal(
+    'deploy',
+    [...clusterArgs(cluster), ...registryArgs(cluster), filePath, ...extraArgs],
+    'Flyte: Deploy',
+  );
 }
 
 export async function build(
   filePath: string,
+  cluster?: ClusterConfig,
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
-  return runInTerminal('build', [filePath, ...extraArgs], 'Flyte: Build');
+  return runInTerminal(
+    'build',
+    [...registryArgs(cluster), filePath, ...extraArgs],
+    'Flyte: Build',
+  );
 }
 
 export async function serve(
   filePath: string,
+  cluster?: ClusterConfig,
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
-  return runInTerminal('serve', [filePath, ...extraArgs], 'Flyte: Serve');
+  return runInTerminal(
+    'serve',
+    [...clusterArgs(cluster), filePath, ...extraArgs],
+    'Flyte: Serve',
+  );
 }
 
 export async function abort(
   runId: string,
+  cluster?: ClusterConfig,
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
-  return runInTerminal('abort', [runId, ...extraArgs], 'Flyte: Abort');
+  return runInTerminal(
+    'abort',
+    [...clusterArgs(cluster), runId, ...extraArgs],
+    'Flyte: Abort',
+  );
 }

@@ -7,9 +7,9 @@ import { RunTreeProvider } from './views/runTreeProvider.js';
 import { AppTreeProvider } from './views/appTreeProvider.js';
 import { ClusterTreeProvider } from './views/clusterTreeProvider.js';
 import { handleRunTask } from './commands/runCommand.js';
-import { handleDeploy } from './commands/deployCommand.js';
-import { handleBuild } from './commands/buildCommand.js';
-import { handleServe } from './commands/serveCommand.js';
+import { handleDeploy, setClusterProvider } from './commands/deployCommand.js';
+import { handleBuild, setBuildClusterProvider } from './commands/buildCommand.js';
+import { handleServe, setServeClusterProvider } from './commands/serveCommand.js';
 import { handleAbort } from './commands/abortCommand.js';
 import { handleShowGraph } from './commands/graphCommand.js';
 import { COMMANDS, VIEWS, FLYTE_LANGUAGE_ID } from './constants.js';
@@ -35,6 +35,12 @@ export async function activate(
 
   // Cluster tree provider (must be created before CodeLens)
   const clusterTreeProvider = new ClusterTreeProvider(context);
+
+  // Wire cluster provider to commands
+  const getActive = () => clusterTreeProvider.getActive();
+  setClusterProvider(getActive);
+  setBuildClusterProvider(getActive);
+  setServeClusterProvider(getActive);
 
   // CodeLens provider (receives cluster provider to check active cluster)
   const codeLensProvider = new FlyteCodeLensProvider(clusterTreeProvider);
