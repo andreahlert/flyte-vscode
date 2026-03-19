@@ -9,3 +9,9 @@ webpack.config.js
 vitest.config.ts
 *.map
 .eslintrc*
+.pnpm-store/**
+pnpm-lock.yaml
+pnpm-workspace.yaml
+parsers/**
+dist/**/*.d.ts
+dist/**/*.d.ts.map
