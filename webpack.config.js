@@ -37,8 +37,9 @@ const extensionConfig = {
     new CopyPlugin({
       patterns: [
         {
-          from: 'node_modules/web-tree-sitter/tree-sitter.wasm',
+          from: 'node_modules/**/web-tree-sitter/web-tree-sitter.wasm',
           to: 'tree-sitter.wasm',
+          noErrorOnMissing: true,
         },
         {
           from: 'parsers/*.wasm',

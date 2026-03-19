@@ -35,7 +35,7 @@ export class AppTreeProvider
 
   async getChildren(): Promise<AppTreeItem[]> {
     const items: AppTreeItem[] = [];
-    const files = await vscode.workspace.findFiles('**/*.py', '**/node_modules/**');
+    const files = await vscode.workspace.findFiles('**/*.py', '{**/node_modules/**,**/.venv/**,**/venv/**,**/__pycache__/**}');
 
     for (const file of files) {
       try {

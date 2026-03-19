@@ -15,3 +15,6 @@ pnpm-workspace.yaml
 parsers/**
 dist/**/*.d.ts
 dist/**/*.d.ts.map
+examples/**
+**/.venv/**
+**/__pycache__/**
