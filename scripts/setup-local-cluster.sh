@@ -106,22 +106,17 @@ manager:
     namespace: "flyte"
 
 database:
-  type: "sqlite"
   sqlite:
     file: "flyte-local.db"
+
+runs:
+  database:
+    sqlite:
+      file: "flyte-runs.db"
 
 logger:
   level: 4
   show-source: true
-
-dataproxy:
-  upload:
-    maxSize: "100Mi"
-    maxExpiresIn: 1h
-    defaultFileNameLength: 20
-    storagePrefix: "uploads"
-  download:
-    maxExpiresIn: 1h
 
 storage:
   type: mem
