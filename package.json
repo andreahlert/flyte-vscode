@@ -1,0 +1,188 @@
+{
+  "name": "flyte-vscode",
+  "displayName": "Flyte",
+  "description": "Flyte V2 development tools: code intelligence, visualization, CLI integration, and monitoring",
+  "version": "0.1.0",
+  "publisher": "flyteorg",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flyteorg/flyte-vscode"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Visualization",
+    "Snippets"
+  ],
+  "keywords": [
+    "flyte",
+    "workflow",
+    "orchestration",
+    "machine learning",
+    "python"
+  ],
+  "activationEvents": [
+    "onLanguage:python",
+    "workspaceContains:**/flyte.yaml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "flyte.runTask",
+        "title": "Flyte: Run Task",
+        "icon": "$(play)"
+      },
+      {
+        "command": "flyte.deploy",
+        "title": "Flyte: Deploy",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "flyte.build",
+        "title": "Flyte: Build",
+        "icon": "$(package)"
+      },
+      {
+        "command": "flyte.serve",
+        "title": "Flyte: Serve App",
+        "icon": "$(server)"
+      },
+      {
+        "command": "flyte.abort",
+        "title": "Flyte: Abort Run",
+        "icon": "$(stop)"
+      },
+      {
+        "command": "flyte.showGraph",
+        "title": "Flyte: Show Task Graph",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "flyte.refreshRuns",
+        "title": "Flyte: Refresh Runs",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "flyte.refreshExplorer",
+        "title": "Flyte: Refresh Explorer",
+        "icon": "$(refresh)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "flyte-explorer",
+          "title": "Flyte",
+          "icon": "resources/flyte-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "flyte-explorer": [
+        {
+          "id": "flyte.environments",
+          "name": "Environments"
+        },
+        {
+          "id": "flyte.tasks",
+          "name": "Tasks"
+        },
+        {
+          "id": "flyte.runs",
+          "name": "Runs"
+        },
+        {
+          "id": "flyte.apps",
+          "name": "Apps"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "flyte.refreshExplorer",
+          "when": "view =~ /^flyte\\./",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "flyte.runTask",
+          "when": "viewItem == flyteTask",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.abort",
+          "when": "viewItem == flyteRun",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Flyte",
+      "properties": {
+        "flyte.cliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the Flyte CLI binary. Leave empty for auto-discovery."
+        },
+        "flyte.pythonPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the Python interpreter."
+        },
+        "flyte.autoRefreshRuns": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh the runs tree view."
+        },
+        "flyte.refreshInterval": {
+          "type": "number",
+          "default": 10000,
+          "description": "Interval in milliseconds between run refreshes.",
+          "minimum": 2000
+        }
+      }
+    },
+    "snippets": [
+      {
+        "language": "python",
+        "path": "./snippets/flyte.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm build",
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "lint": "eslint src --ext ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vscode-test",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/test-electron": "^2.3.8",
+    "@vscode/vsce": "^2.22.0",
+    "copy-webpack-plugin": "^12.0.0",
+    "eslint": "^8.56.0",
+    "tree-sitter-cli": "^0.26.7",
+    "tree-sitter-python": "^0.25.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "web-tree-sitter": "^0.26.7"
+  }
+}

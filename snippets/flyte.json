@@ -1,0 +1,121 @@
+{
+  "Flyte TaskEnvironment": {
+    "prefix": "fenv",
+    "body": [
+      "${1:env} = flyte.TaskEnvironment(",
+      "    name=\"${2:my-pipeline}\",",
+      "    image=\"${3:auto}\",",
+      "    resources=flyte.Resources(${4:cpu=1, memory=\"2Gi\"}),",
+      ")"
+    ],
+    "description": "Create a Flyte TaskEnvironment"
+  },
+  "Flyte Task": {
+    "prefix": "ftask",
+    "body": [
+      "@${1:env}.task",
+      "async def ${2:my_task}(${3:input: str}) -> ${4:str}:",
+      "    ${0:pass}"
+    ],
+    "description": "Create an async Flyte task"
+  },
+  "Flyte AppEnvironment": {
+    "prefix": "fapp",
+    "body": [
+      "${1:app} = flyte.app.AppEnvironment(",
+      "    name=\"${2:my-app}\",",
+      "    port=${3:8080},",
+      "    resources=flyte.Resources(${4:cpu=1, memory=\"2Gi\"}),",
+      ")"
+    ],
+    "description": "Create a Flyte AppEnvironment"
+  },
+  "Flyte Resources": {
+    "prefix": "fres",
+    "body": [
+      "flyte.Resources(",
+      "    cpu=${1:1},",
+      "    memory=\"${2:2Gi}\",",
+      "    ${3:gpu=\"${4:T4:1}\",}",
+      ")"
+    ],
+    "description": "Create Flyte Resources"
+  },
+  "Flyte Run": {
+    "prefix": "frun",
+    "body": [
+      "if __name__ == \"__main__\":",
+      "    flyte.run(${1:my_task}(${2:}))"
+    ],
+    "description": "Run a Flyte task locally"
+  },
+  "Flyte Deploy": {
+    "prefix": "fdeploy",
+    "body": [
+      "if __name__ == \"__main__\":",
+      "    flyte.deploy(${1:my_task}(${2:}))"
+    ],
+    "description": "Deploy a Flyte task"
+  },
+  "Flyte Cache": {
+    "prefix": "fcache",
+    "body": [
+      "flyte.Cache(",
+      "    version=\"${1:1.0}\",",
+      "    policy=flyte.CachePolicy.${2|CONTENT_HASH,STEP_HASH|},",
+      ")"
+    ],
+    "description": "Create Flyte Cache configuration"
+  },
+  "Flyte Trigger": {
+    "prefix": "ftrigger",
+    "body": [
+      "flyte.Trigger(",
+      "    name=\"${1:my-trigger}\",",
+      "    automation=flyte.${2|Cron(expression=\"${3:0 * * * *}\"),FixedRate(interval_minutes=${3:60})|},",
+      ")"
+    ],
+    "description": "Create a Flyte Trigger"
+  },
+  "Flyte Image": {
+    "prefix": "fimage",
+    "body": [
+      "flyte.Image(",
+      "    name=\"${1:my-image}\",",
+      "    base=\"${2:python:3.11-slim}\",",
+      "    packages=[\"${3:pandas}\"],",
+      ")"
+    ],
+    "description": "Create a Flyte Image"
+  },
+  "Flyte Map": {
+    "prefix": "fmap",
+    "body": [
+      "results = await flyte.map(${1:my_task}, ${2:items})"
+    ],
+    "description": "Map a task over inputs"
+  },
+  "Flyte Group": {
+    "prefix": "fgroup",
+    "body": [
+      "with flyte.group(\"${1:group-name}\"):",
+      "    ${0:pass}"
+    ],
+    "description": "Create a Flyte task group"
+  },
+  "Flyte Trace": {
+    "prefix": "ftrace",
+    "body": [
+      "with flyte.trace(\"${1:span-name}\"):",
+      "    ${0:pass}"
+    ],
+    "description": "Create a Flyte trace span"
+  },
+  "Flyte Secret": {
+    "prefix": "fsecret",
+    "body": [
+      "flyte.Secret(group=\"${1:my-group}\", key=\"${2:my-key}\")"
+    ],
+    "description": "Reference a Flyte secret"
+  }
+}
