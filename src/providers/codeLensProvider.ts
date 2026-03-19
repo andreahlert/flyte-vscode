@@ -24,15 +24,20 @@ export class FlyteCodeLensProvider implements vscode.CodeLensProvider {
 
     for (const task of info.tasks) {
       const range = task.decoratorLocation;
+      const allParamsHaveDefaults =
+        task.parameters.length === 0 ||
+        task.parameters.every((p) => p.defaultValue !== undefined);
 
-      lenses.push(
-        new vscode.CodeLens(range, {
-          title: '$(play) Run Task',
-          command: COMMANDS.RUN_TASK,
-          arguments: [document.uri, task.functionName],
-          tooltip: `Run ${task.functionName} via Flyte CLI`,
-        }),
-      );
+      if (allParamsHaveDefaults) {
+        lenses.push(
+          new vscode.CodeLens(range, {
+            title: '$(play) Run Task',
+            command: COMMANDS.RUN_TASK,
+            arguments: [document.uri, task.functionName],
+            tooltip: `Run ${task.functionName} via Flyte CLI`,
+          }),
+        );
+      }
 
       lenses.push(
         new vscode.CodeLens(range, {
