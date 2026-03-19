@@ -302,10 +302,12 @@ async def run_training_pipeline(
         raw_data = await fetch_dataset(source_url)
         shards = await split_into_shards(raw_data, num_shards=num_shards)
 
-    # Phase 2: Parallel preprocessing via flyte.map
+    # Phase 2: Parallel preprocessing
     with flyte.group("preprocessing"):
-        processed_shards = await flyte.map(preprocess_shard, shards)
-        merged = await merge_shards(processed_shards)
+        processed_shards = await asyncio.gather(
+            *[preprocess_shard(shard) for shard in shards]
+        )
+        merged = await merge_shards(list(processed_shards))
         splits = await create_train_val_split(merged)
 
     # Phase 3: Training (multiple model variants in parallel)

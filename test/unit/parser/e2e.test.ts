@@ -190,9 +190,9 @@ describe('E2E: pipeline.py', () => {
       expect(runCalls).toHaveLength(1);
     });
 
-    it('extracts flyte.map call', () => {
+    it('has no flyte.map calls (uses asyncio.gather instead)', () => {
       const mapCalls = info.calls.filter((c) => c.type === 'map');
-      expect(mapCalls).toHaveLength(1);
+      expect(mapCalls).toHaveLength(0);
     });
 
     it('has no deploy calls in pipeline.py', () => {
