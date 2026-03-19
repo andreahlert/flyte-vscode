@@ -146,13 +146,23 @@ start_cluster() {
     k3d cluster create "$CLUSTER_NAME"
   fi
 
+  # Merge kubeconfig so kubectl works in any terminal
+  info "Configuring kubectl context..."
+  k3d kubeconfig merge "$CLUSTER_NAME" --kubeconfig-switch-context 2>/dev/null || true
+
   # Wait for kubectl to connect
-  for i in $(seq 1 15); do
+  info "Waiting for Kubernetes to be ready..."
+  for i in $(seq 1 30); do
     if kubectl cluster-info &>/dev/null; then
       break
     fi
-    sleep 1
+    sleep 2
   done
+
+  if ! kubectl cluster-info &>/dev/null; then
+    error "Kubernetes cluster failed to become ready."
+    exit 1
+  fi
 
   info "Setting up Kubernetes namespace and CRD..."
   kubectl create namespace flyte 2>/dev/null || true
