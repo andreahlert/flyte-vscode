@@ -83,8 +83,8 @@
         "command": "flyte.connectSelfHosted",
         "title": "Flyte: Connect to Self-Hosted Cluster",
         "icon": {
-          "light": "resources/flyte-icon.svg",
-          "dark": "resources/flyte-icon.svg"
+          "light": "resources/flyte-icon-purple.svg",
+          "dark": "resources/flyte-icon-purple.svg"
         }
       },
       {
