@@ -24,10 +24,9 @@ import flyte
 # CPU environment for data processing tasks
 data_env = flyte.TaskEnvironment(
     name="data-processing",
-    image=flyte.Image(
-        name="data-processing",
-        base="python:3.12-slim",
-        packages=["pandas", "pyarrow", "requests", "scikit-learn"],
+    image=(
+        flyte.Image.from_debian_base()
+        .with_pip_packages("pandas", "pyarrow", "requests", "scikit-learn")
     ),
     resources=flyte.Resources(cpu=2, memory="4Gi", disk="20Gi"),
     cache="auto",
@@ -39,10 +38,9 @@ data_env = flyte.TaskEnvironment(
 # GPU environment for model training
 train_env = flyte.TaskEnvironment(
     name="gpu-training",
-    image=flyte.Image(
-        name="gpu-training",
-        base="pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime",
-        packages=["transformers", "datasets", "wandb", "accelerate"],
+    image=(
+        flyte.Image.from_debian_base()
+        .with_pip_packages("transformers", "datasets", "wandb", "accelerate")
     ),
     resources=flyte.Resources(
         cpu=(4, 8),
@@ -69,10 +67,9 @@ eval_env = flyte.TaskEnvironment(
 # Multi-GPU environment for distributed training
 distributed_env = flyte.TaskEnvironment(
     name="distributed-training",
-    image=flyte.Image(
-        name="gpu-training",
-        base="pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime",
-        packages=["transformers", "datasets", "wandb", "accelerate", "deepspeed"],
+    image=(
+        flyte.Image.from_debian_base()
+        .with_pip_packages("transformers", "datasets", "wandb", "accelerate", "deepspeed")
     ),
     resources=flyte.Resources(
         cpu=8,
@@ -102,13 +99,12 @@ async def fetch_dataset(
     split: str = "train",
 ) -> dict:
     """Download and validate a dataset from a remote source."""
-    with flyte.trace("download"):
-        data = {
-            "source": source_url,
-            "split": split,
-            "num_samples": 50000,
-            "columns": ["text", "label"],
-        }
+    data = {
+        "source": source_url,
+        "split": split,
+        "num_samples": 50000,
+        "columns": ["text", "label"],
+    }
     return data
 
 
@@ -191,17 +187,16 @@ async def train_model(
     seed: int = 42,
 ) -> dict:
     """Fine-tune a transformer model on the processed dataset."""
-    with flyte.trace("training-loop"):
-        result = {
-            "model_name": model_name,
-            "epochs": epochs,
-            "learning_rate": learning_rate,
-            "batch_size": batch_size,
-            "train_tokens": train_data["train_tokens"],
-            "train_loss": 0.234,
-            "val_loss": 0.312,
-            "checkpoint_path": f"s3://models/{model_name}/checkpoint-final",
-        }
+    result = {
+        "model_name": model_name,
+        "epochs": epochs,
+        "learning_rate": learning_rate,
+        "batch_size": batch_size,
+        "train_tokens": train_data["train_tokens"],
+        "train_loss": 0.234,
+        "val_loss": 0.312,
+        "checkpoint_path": f"s3://models/{model_name}/checkpoint-final",
+    }
     return result
 
 
@@ -219,15 +214,14 @@ async def train_large_model(
     seed: int = 42,
 ) -> dict:
     """Fine-tune a large model using distributed training with DeepSpeed."""
-    with flyte.trace("distributed-training"):
-        result = {
-            "model_name": model_name,
-            "epochs": epochs,
-            "effective_batch_size": batch_size * gradient_accumulation_steps * 4,
-            "train_tokens": train_data["train_tokens"],
-            "train_loss": 0.189,
-            "checkpoint_path": f"s3://models/{model_name}/checkpoint-final",
-        }
+    result = {
+        "model_name": model_name,
+        "epochs": epochs,
+        "effective_batch_size": batch_size * gradient_accumulation_steps * 4,
+        "train_tokens": train_data["train_tokens"],
+        "train_loss": 0.189,
+        "checkpoint_path": f"s3://models/{model_name}/checkpoint-final",
+    }
     return result
 
 
@@ -241,16 +235,15 @@ async def evaluate_model(
     val_data: dict,
 ) -> dict:
     """Run evaluation metrics on the trained model."""
-    with flyte.trace("evaluation"):
-        metrics = {
-            "model_name": model_result["model_name"],
-            "accuracy": 0.923,
-            "f1_score": 0.918,
-            "precision": 0.931,
-            "recall": 0.906,
-            "val_tokens": val_data["val_tokens"],
-            "checkpoint_path": model_result["checkpoint_path"],
-        }
+    metrics = {
+        "model_name": model_result["model_name"],
+        "accuracy": 0.923,
+        "f1_score": 0.918,
+        "precision": 0.931,
+        "recall": 0.906,
+        "val_tokens": val_data["val_tokens"],
+        "checkpoint_path": model_result["checkpoint_path"],
+    }
     return metrics
 
 
@@ -340,8 +333,7 @@ async def run_training_pipeline(
         comparison = await compare_models([eval_small, eval_large])
 
     # Phase 5: Report
-    with flyte.trace("reporting"):
-        report = await generate_report(comparison, merged)
+    report = await generate_report(comparison, merged)
 
     return report
 

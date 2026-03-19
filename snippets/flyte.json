@@ -80,13 +80,10 @@
   "Flyte Image": {
     "prefix": "fimage",
     "body": [
-      "flyte.Image(",
-      "    name=\"${1:my-image}\",",
-      "    base=\"${2:python:3.11-slim}\",",
-      "    packages=[\"${3:pandas}\"],",
-      ")"
+      "flyte.Image.from_debian_base()",
+      "    .with_pip_packages(\"${1:pandas}\", \"${2:numpy}\")"
     ],
-    "description": "Create a Flyte Image"
+    "description": "Create a Flyte Image with pip packages"
   },
   "Flyte Map": {
     "prefix": "fmap",
@@ -106,15 +103,16 @@
   "Flyte Trace": {
     "prefix": "ftrace",
     "body": [
-      "with flyte.trace(\"${1:span-name}\"):",
+      "@flyte.trace",
+      "async def ${1:traced_fn}(${2:}) -> ${3:str}:",
       "    ${0:pass}"
     ],
-    "description": "Create a Flyte trace span"
+    "description": "Decorate a function with Flyte trace"
   },
   "Flyte Secret": {
     "prefix": "fsecret",
     "body": [
-      "flyte.Secret(group=\"${1:my-group}\", key=\"${2:my-key}\")"
+      "flyte.Secret(\"${1:my-secret}\", as_env_var=\"${2:MY_SECRET}\")"
     ],
     "description": "Reference a Flyte secret"
   }

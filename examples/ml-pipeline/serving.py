@@ -16,10 +16,9 @@ import flyte.app
 
 inference_app = flyte.app.AppEnvironment(
     name="text-classifier",
-    image=flyte.Image(
-        name="inference",
-        base="python:3.12-slim",
-        packages=["transformers", "torch", "fastapi", "uvicorn"],
+    image=(
+        flyte.Image.from_debian_base()
+        .with_pip_packages("transformers", "torch", "fastapi", "uvicorn")
     ),
     port=8000,
     resources=flyte.Resources(
