@@ -138,12 +138,21 @@ build_manager() {
 }
 
 start_cluster() {
-  if k3d cluster list 2>/dev/null | grep -q "$CLUSTER_NAME"; then
-    info "k3d cluster '$CLUSTER_NAME' already exists."
+  if k3d cluster list -o json 2>/dev/null | grep -q "\"$CLUSTER_NAME\""; then
+    info "k3d cluster '$CLUSTER_NAME' already exists. Ensuring it's running..."
+    k3d cluster start "$CLUSTER_NAME" 2>/dev/null || true
   else
     info "Creating k3d cluster '$CLUSTER_NAME'..."
     k3d cluster create "$CLUSTER_NAME"
   fi
+
+  # Wait for kubectl to connect
+  for i in $(seq 1 15); do
+    if kubectl cluster-info &>/dev/null; then
+      break
+    fi
+    sleep 1
+  done
 
   info "Setting up Kubernetes namespace and CRD..."
   kubectl create namespace flyte 2>/dev/null || true
