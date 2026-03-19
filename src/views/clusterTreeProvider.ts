@@ -135,10 +135,14 @@ export class ClusterTreeProvider
       return;
     }
 
-    const terminal = vscode.window.createTerminal('Flyte: Local Cluster');
+    const terminal = vscode.window.createTerminal({
+      name: 'Flyte: Local Cluster',
+      shellPath: '/bin/bash',
+      shellArgs: [scriptPath],
+    });
     terminal.show();
-    terminal.sendText(`bash "${scriptPath}"`);
 
+    // Save cluster config and activate after script completes
     await this.saveCluster({
       name: 'local',
       endpoint: 'dns:///localhost:8090',
