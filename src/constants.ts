@@ -10,6 +10,8 @@ export const COMMANDS = {
   SHOW_GRAPH: 'flyte.showGraph',
   REFRESH_RUNS: 'flyte.refreshRuns',
   REFRESH_EXPLORER: 'flyte.refreshExplorer',
+  CONNECT_UNION: 'flyte.connectUnion',
+  CONNECT_SELF_HOSTED: 'flyte.connectSelfHosted',
   ADD_CLUSTER: 'flyte.addCluster',
   REMOVE_CLUSTER: 'flyte.removeCluster',
   SET_ACTIVE_CLUSTER: 'flyte.setActiveCluster',

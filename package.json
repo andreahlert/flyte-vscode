@@ -72,6 +72,22 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "flyte.connectUnion",
+        "title": "Flyte: Connect to Union.ai",
+        "icon": {
+          "light": "resources/union-icon.svg",
+          "dark": "resources/union-icon.svg"
+        }
+      },
+      {
+        "command": "flyte.connectSelfHosted",
+        "title": "Flyte: Connect to Self-Hosted Cluster",
+        "icon": {
+          "light": "resources/flyte-icon.svg",
+          "dark": "resources/flyte-icon.svg"
+        }
+      },
+      {
         "command": "flyte.addCluster",
         "title": "Flyte: Add Cluster",
         "icon": "$(add)"
@@ -156,6 +172,12 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "flyte.clusters",
+        "contents": "No clusters configured.\n\n[$(cloud) Connect to Union.ai](command:flyte.connectUnion)\nManaged platform, no infrastructure to manage.\n\n[$(server) Self-Hosted Cluster](command:flyte.connectSelfHosted)\nConnect to your own Flyte on Kubernetes."
+      }
+    ],
     "configuration": {
       "title": "Flyte",
       "properties": {

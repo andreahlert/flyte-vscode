@@ -4,6 +4,7 @@ export interface ClusterConfig {
   name: string;
   endpoint: string;
   insecure: boolean;
+  type: 'union' | 'self-hosted';
 }
 
 const STORAGE_KEY = 'flyte.clusters';
@@ -13,16 +14,16 @@ export class ClusterTreeItem extends vscode.TreeItem {
   constructor(
     public readonly cluster: ClusterConfig,
     public readonly isActive: boolean,
+    extensionPath: string,
   ) {
     super(cluster.name, vscode.TreeItemCollapsibleState.None);
-    this.description = cluster.endpoint;
-    this.tooltip = `${cluster.name}\n${cluster.endpoint}${cluster.insecure ? ' (insecure)' : ''}`;
-    this.iconPath = new vscode.ThemeIcon(
-      isActive ? 'plug' : 'debug-disconnect',
-      isActive
-        ? new vscode.ThemeColor('charts.green')
-        : undefined,
-    );
+    this.description = isActive ? `${cluster.endpoint} (active)` : cluster.endpoint;
+    this.tooltip = `${cluster.name}\n${cluster.endpoint}\nType: ${cluster.type === 'union' ? 'Union.ai' : 'Self-Hosted'}${cluster.insecure ? '\nInsecure' : ''}`;
+    const iconFile = cluster.type === 'union' ? 'union-icon.svg' : 'flyte-icon.svg';
+    this.iconPath = {
+      light: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
+      dark: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
+    };
     this.contextValue = 'flyteCluster';
   }
 }
@@ -58,18 +59,42 @@ export class ClusterTreeProvider
     return this.getClusters().find((c) => c.name === name);
   }
 
-  async addCluster(): Promise<void> {
+  async connectUnion(): Promise<void> {
+    const endpoint = await vscode.window.showInputBox({
+      prompt: 'Union.ai endpoint (from your Union dashboard)',
+      placeHolder: 'dns:///your-org.unionai.cloud',
+      ignoreFocusOut: true,
+    });
+    if (!endpoint) return;
+
     const name = await vscode.window.showInputBox({
-      prompt: 'Cluster name',
-      placeHolder: 'production',
+      prompt: 'Name for this connection',
+      value: 'union',
+      ignoreFocusOut: true,
     });
     if (!name) return;
 
+    await this.saveCluster({ name, endpoint, insecure: false, type: 'union' });
+
+    const terminal = vscode.window.createTerminal('Union: Login');
+    terminal.show();
+    terminal.sendText(`flyte init --endpoint ${endpoint}`);
+  }
+
+  async connectSelfHosted(): Promise<void> {
     const endpoint = await vscode.window.showInputBox({
-      prompt: 'Flyte endpoint',
-      placeHolder: 'dns:///flyte.example.com',
+      prompt: 'Flyte cluster endpoint',
+      placeHolder: 'dns:///flyte.my-company.com',
+      ignoreFocusOut: true,
     });
     if (!endpoint) return;
+
+    const name = await vscode.window.showInputBox({
+      prompt: 'Name for this cluster',
+      value: 'self-hosted',
+      ignoreFocusOut: true,
+    });
+    if (!name) return;
 
     const insecureChoice = await vscode.window.showQuickPick(
       ['No (TLS)', 'Yes (insecure)'],
@@ -77,14 +102,38 @@ export class ClusterTreeProvider
     );
     if (!insecureChoice) return;
 
-    const cluster: ClusterConfig = {
+    await this.saveCluster({
       name,
       endpoint,
       insecure: insecureChoice.startsWith('Yes'),
-    };
+      type: 'self-hosted',
+    });
 
+    const terminal = vscode.window.createTerminal('Flyte: Init');
+    terminal.show();
+    const insecureFlag = insecureChoice.startsWith('Yes') ? ' --insecure' : '';
+    terminal.sendText(`flyte init --endpoint ${endpoint}${insecureFlag}`);
+  }
+
+  async addCluster(): Promise<void> {
+    const typeChoice = await vscode.window.showQuickPick(
+      [
+        { label: 'Union.ai', description: 'Managed platform', value: 'union' as const },
+        { label: 'Self-Hosted', description: 'Your own Flyte on Kubernetes', value: 'self-hosted' as const },
+      ],
+      { placeHolder: 'Cluster type' },
+    );
+    if (!typeChoice) return;
+
+    if (typeChoice.value === 'union') {
+      return this.connectUnion();
+    }
+    return this.connectSelfHosted();
+  }
+
+  private async saveCluster(cluster: ClusterConfig): Promise<void> {
     const clusters = this.getClusters();
-    const existing = clusters.findIndex((c) => c.name === name);
+    const existing = clusters.findIndex((c) => c.name === cluster.name);
     if (existing >= 0) {
       clusters[existing] = cluster;
     } else {
@@ -94,7 +143,7 @@ export class ClusterTreeProvider
     await this.saveClusters(clusters);
 
     if (clusters.length === 1) {
-      await this.setActive(name);
+      await this.setActive(cluster.name);
     }
 
     this.refresh();
@@ -167,7 +216,7 @@ export class ClusterTreeProvider
     }
 
     return clusters.map(
-      (c) => new ClusterTreeItem(c, c.name === activeName),
+      (c) => new ClusterTreeItem(c, c.name === activeName, this.context.extensionPath),
     );
   }
 }

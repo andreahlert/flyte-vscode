@@ -78,6 +78,12 @@ export async function activate(
       appTreeProvider.refresh();
       codeLensProvider.refresh();
     }),
+    vscode.commands.registerCommand(COMMANDS.CONNECT_UNION, () => {
+      clusterTreeProvider.connectUnion().then(() => codeLensProvider.refresh());
+    }),
+    vscode.commands.registerCommand(COMMANDS.CONNECT_SELF_HOSTED, () => {
+      clusterTreeProvider.connectSelfHosted().then(() => codeLensProvider.refresh());
+    }),
     vscode.commands.registerCommand(COMMANDS.ADD_CLUSTER, () => {
       clusterTreeProvider.addCluster().then(() => codeLensProvider.refresh());
     }),
