@@ -102,7 +102,7 @@ export async function activate(
     vscode.commands.registerCommand(COMMANDS.OPEN_TUI, () => {
       const terminal = vscode.window.createTerminal('Flyte TUI');
       terminal.show();
-      terminal.sendText('flyte start tui');
+      terminal.sendText('pip install -q "flyte[tui]" 2>/dev/null; flyte start tui');
     }),
   );
 
