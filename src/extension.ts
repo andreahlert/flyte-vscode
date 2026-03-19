@@ -6,7 +6,7 @@ import { TaskTreeProvider } from './views/taskTreeProvider.js';
 import { RunTreeProvider } from './views/runTreeProvider.js';
 import { AppTreeProvider } from './views/appTreeProvider.js';
 import { ClusterTreeProvider } from './views/clusterTreeProvider.js';
-import { handleRunTask } from './commands/runCommand.js';
+import { handleRunTask, setRunClusterProvider } from './commands/runCommand.js';
 import { handleDeploy, setClusterProvider } from './commands/deployCommand.js';
 import { handleBuild, setBuildClusterProvider } from './commands/buildCommand.js';
 import { handleServe, setServeClusterProvider } from './commands/serveCommand.js';
@@ -38,6 +38,7 @@ export async function activate(
 
   // Wire cluster provider to commands
   const getActive = () => clusterTreeProvider.getActive();
+  setRunClusterProvider(getActive);
   setClusterProvider(getActive);
   setBuildClusterProvider(getActive);
   setServeClusterProvider(getActive);

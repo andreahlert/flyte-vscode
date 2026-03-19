@@ -61,12 +61,27 @@ export async function runInTerminal(
 export async function runTask(
   filePath: string,
   taskName: string,
+  cluster?: ClusterConfig,
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
+  if (cluster) {
+    return runInTerminal(
+      'run',
+      [
+        ...clusterArgs(cluster),
+        ...registryArgs(cluster),
+        '--follow',
+        filePath,
+        taskName,
+        ...extraArgs,
+      ],
+      `Run: ${taskName} (${cluster.name})`,
+    );
+  }
   return runInTerminal(
     'run',
     ['--local', '--tui', filePath, taskName, ...extraArgs],
-    `Run: ${taskName}`,
+    `Run: ${taskName} (local)`,
   );
 }
 

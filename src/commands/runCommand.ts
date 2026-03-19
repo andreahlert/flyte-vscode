@@ -2,6 +2,13 @@ import * as vscode from 'vscode';
 import { runTask } from '../cli/cliRunner.js';
 import { parseSource } from '../parser/pythonParser.js';
 import { extractFlyteInfo } from '../parser/flyteExtractor.js';
+import type { ClusterConfig } from '../views/clusterTreeProvider.js';
+
+let getActiveCluster: (() => ClusterConfig | undefined) | undefined;
+
+export function setRunClusterProvider(fn: () => ClusterConfig | undefined): void {
+  getActiveCluster = fn;
+}
 
 export async function handleRunTask(
   uri?: vscode.Uri,
@@ -47,8 +54,35 @@ export async function handleRunTask(
     }
   }
 
+  // Ask where to run if cluster is available
+  const activeCluster = getActiveCluster?.();
+  let selectedCluster: ClusterConfig | undefined;
+
+  if (activeCluster) {
+    const target = await vscode.window.showQuickPick(
+      [
+        {
+          label: '$(computer) Local',
+          description: 'Run on your machine',
+          value: 'local' as const,
+        },
+        {
+          label: `$(cloud) ${activeCluster.name}`,
+          description: activeCluster.endpoint,
+          value: 'cluster' as const,
+        },
+      ],
+      { placeHolder: `Where to run ${taskName}?` },
+    );
+    if (!target) return;
+
+    if (target.value === 'cluster') {
+      selectedCluster = activeCluster;
+    }
+  }
+
   try {
-    await runTask(filePath, taskName);
+    await runTask(filePath, taskName, selectedCluster);
   } catch (err) {
     vscode.window.showErrorMessage(
       `Failed to run task: ${err instanceof Error ? err.message : String(err)}`,
