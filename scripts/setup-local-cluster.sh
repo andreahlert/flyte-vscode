@@ -15,6 +15,8 @@
 set -euo pipefail
 
 CLUSTER_NAME="flyte"
+REGISTRY_NAME="flyte-registry"
+REGISTRY_PORT=5050
 FLYTE_DATA_DIR="${HOME}/.flyte-local"
 MANAGER_PID_FILE="/tmp/flyte-manager.pid"
 MANAGER_LOG="/tmp/flyte-manager.log"
@@ -142,8 +144,9 @@ start_cluster() {
     info "k3d cluster '$CLUSTER_NAME' already exists. Ensuring it's running..."
     k3d cluster start "$CLUSTER_NAME" 2>/dev/null || true
   else
-    info "Creating k3d cluster '$CLUSTER_NAME'..."
-    k3d cluster create "$CLUSTER_NAME"
+    info "Creating k3d cluster '$CLUSTER_NAME' with local registry..."
+    k3d cluster create "$CLUSTER_NAME" \
+      --registry-create "$REGISTRY_NAME:0.0.0.0:$REGISTRY_PORT"
   fi
 
   # Merge kubeconfig so kubectl works in any terminal
@@ -243,10 +246,14 @@ do_start() {
   echo ""
   echo "  Runs/Queue/State API:  http://localhost:8090"
   echo "  Executor health:       http://localhost:8081"
+  echo "  Docker Registry:       localhost:$REGISTRY_PORT"
   echo "  Logs:                  $MANAGER_LOG"
   echo ""
   echo "  Connect the SDK:"
   echo "    flyte init --endpoint dns:///localhost:8090 --insecure"
+  echo ""
+  echo "  Use registry in TaskEnvironment:"
+  echo "    flyte.Image.from_debian_base(registry=\"localhost:$REGISTRY_PORT\")"
   echo ""
   echo "  Stop:"
   echo "    $0 stop"
@@ -284,6 +291,14 @@ do_status() {
   fi
   echo ""
 
+  echo "=== Docker Registry ==="
+  if curl -sf "http://localhost:$REGISTRY_PORT/v2/" &>/dev/null; then
+    echo "  Status: running on localhost:$REGISTRY_PORT"
+  else
+    echo "  Status: not running"
+  fi
+  echo ""
+
   echo "=== TaskActions ==="
   kubectl get taskactions -n flyte 2>/dev/null || echo "  No TaskActions"
 }
@@ -294,7 +309,11 @@ do_destroy() {
     info "Deleting k3d cluster '$CLUSTER_NAME'..."
     k3d cluster delete "$CLUSTER_NAME"
   fi
-  rm -f "$MANAGER_DIR/flyte-local.db"
+  if k3d registry list 2>/dev/null | grep -q "$REGISTRY_NAME"; then
+    info "Deleting registry '$REGISTRY_NAME'..."
+    k3d registry delete "$REGISTRY_NAME" 2>/dev/null || true
+  fi
+  rm -f "$MANAGER_DIR/flyte-local.db" "$MANAGER_DIR/flyte-runs.db"
   info "Everything cleaned up."
 }
 
