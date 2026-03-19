@@ -41,15 +41,6 @@ export class FlyteCodeLensProvider implements vscode.CodeLensProvider {
 
       lenses.push(
         new vscode.CodeLens(range, {
-          title: '$(cloud-upload) Deploy',
-          command: COMMANDS.DEPLOY,
-          arguments: [document.uri],
-          tooltip: `Deploy tasks in ${document.fileName}`,
-        }),
-      );
-
-      lenses.push(
-        new vscode.CodeLens(range, {
           title: '$(type-hierarchy) Graph',
           command: COMMANDS.SHOW_GRAPH,
           arguments: [document.uri],
