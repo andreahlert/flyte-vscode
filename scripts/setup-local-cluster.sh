@@ -15,11 +15,41 @@
 set -euo pipefail
 
 CLUSTER_NAME="flyte"
-FLYTE_REPO="${FLYTE_REPO:-$(cd "$(dirname "$0")/../../flyte" && pwd)}"
-MANAGER_DIR="$FLYTE_REPO/manager"
-MANAGER_BIN="$MANAGER_DIR/bin/flyte-manager"
+FLYTE_DATA_DIR="${HOME}/.flyte-local"
 MANAGER_PID_FILE="/tmp/flyte-manager.pid"
 MANAGER_LOG="/tmp/flyte-manager.log"
+
+find_flyte_repo() {
+  # 1. Env var
+  if [ -n "${FLYTE_REPO:-}" ] && [ -d "$FLYTE_REPO/manager" ]; then
+    echo "$FLYTE_REPO"
+    return
+  fi
+
+  # 2. Common locations
+  for candidate in \
+    "$HOME/Dev/Flyte/flyte" \
+    "$HOME/flyte" \
+    "$HOME/projects/flyte" \
+    "$(dirname "$0")/../../flyte" \
+  ; do
+    if [ -d "$candidate/manager" ] 2>/dev/null; then
+      echo "$(cd "$candidate" && pwd)"
+      return
+    fi
+  done
+
+  # 3. Clone it
+  echo ""
+}
+
+FLYTE_REPO="$(find_flyte_repo)"
+if [ -z "$FLYTE_REPO" ]; then
+  FLYTE_REPO="$FLYTE_DATA_DIR/flyte"
+fi
+
+MANAGER_DIR="$FLYTE_REPO/manager"
+MANAGER_BIN="$MANAGER_DIR/bin/flyte-manager"
 MANAGER_CONFIG="$MANAGER_DIR/config-local.yaml"
 CRD_PATH="$FLYTE_REPO/executor/config/crd/bases/flyte.org_taskactions.yaml"
 
@@ -43,10 +73,15 @@ check_prereqs() {
     exit 1
   fi
 
-  if ! [ -d "$FLYTE_REPO" ]; then
-    error "Flyte repo not found at $FLYTE_REPO"
-    error "Set FLYTE_REPO env var or clone it next to flyte-vscode."
-    exit 1
+  if ! [ -d "$FLYTE_REPO/manager" ]; then
+    info "Flyte repo not found. Cloning to $FLYTE_REPO..."
+    mkdir -p "$(dirname "$FLYTE_REPO")"
+    git clone --depth 1 https://github.com/flyteorg/flyte.git "$FLYTE_REPO"
+    # Refresh paths
+    MANAGER_DIR="$FLYTE_REPO/manager"
+    MANAGER_BIN="$MANAGER_DIR/bin/flyte-manager"
+    MANAGER_CONFIG="$MANAGER_DIR/config-local.yaml"
+    CRD_PATH="$FLYTE_REPO/executor/config/crd/bases/flyte.org_taskactions.yaml"
   fi
 }
 
