@@ -20,7 +20,7 @@ export class ClusterTreeItem extends vscode.TreeItem {
     super(cluster.name, vscode.TreeItemCollapsibleState.None);
     this.description = isActive ? `${cluster.endpoint} (active)` : cluster.endpoint;
     this.tooltip = `${cluster.name}\n${cluster.endpoint}\nType: ${cluster.type === 'union' ? 'Union.ai' : 'Self-Hosted'}${cluster.insecure ? '\nInsecure' : ''}`;
-    const iconFile = cluster.type === 'union' ? 'union-icon.svg' : 'flyte-icon.svg';
+    const iconFile = cluster.type === 'union' ? 'union-icon.svg' : 'flyte-icon-purple.svg';
     this.iconPath = {
       light: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
       dark: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
@@ -221,10 +221,35 @@ export class ClusterTreeProvider
   }
 
   async removeCluster(item?: ClusterTreeItem): Promise<void> {
-    const name =
-      item?.cluster.name ??
+    const cluster = item?.cluster;
+    const name = cluster?.name ??
       (await this.pickCluster('Select cluster to remove'));
     if (!name) return;
+
+    const isLocal = cluster?.name === 'local' && cluster?.registry === 'localhost:5050';
+
+    if (isLocal) {
+      const confirm = await vscode.window.showWarningMessage(
+        'This will destroy the local Kubernetes cluster and stop all services.',
+        { modal: true },
+        'Destroy Cluster',
+        'Cancel',
+      );
+      if (confirm !== 'Destroy Cluster') return;
+
+      const scriptPath = vscode.Uri.joinPath(
+        vscode.Uri.file(this.context.extensionPath),
+        'scripts',
+        'setup-local-cluster.sh',
+      ).fsPath;
+
+      const terminal = vscode.window.createTerminal({
+        name: 'Flyte: Destroy Cluster',
+        env: { FLYTE_SETUP_NONINTERACTIVE: '1' },
+      });
+      terminal.show();
+      terminal.sendText(`bash "${scriptPath}" destroy`);
+    }
 
     const clusters = this.getClusters().filter((c) => c.name !== name);
     await this.saveClusters(clusters);
