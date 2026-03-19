@@ -65,7 +65,7 @@ export async function runTask(
 ): Promise<vscode.Terminal> {
   return runInTerminal(
     'run',
-    ['--local', filePath, taskName, ...extraArgs],
+    ['--local', '--tui', filePath, taskName, ...extraArgs],
     `Run: ${taskName}`,
   );
 }
