@@ -101,6 +101,11 @@
         "command": "flyte.setActiveCluster",
         "title": "Flyte: Set Active Cluster",
         "icon": "$(plug)"
+      },
+      {
+        "command": "flyte.openTui",
+        "title": "Flyte: Open TUI",
+        "icon": "$(terminal)"
       }
     ],
     "viewsContainers": {
@@ -147,6 +152,11 @@
           "command": "flyte.connectSelfHosted",
           "when": "view == flyte.clusters",
           "group": "navigation@2"
+        },
+        {
+          "command": "flyte.openTui",
+          "when": "view == flyte.runs",
+          "group": "navigation@1"
         },
         {
           "command": "flyte.refreshExplorer",

@@ -15,6 +15,7 @@ export const COMMANDS = {
   ADD_CLUSTER: 'flyte.addCluster',
   REMOVE_CLUSTER: 'flyte.removeCluster',
   SET_ACTIVE_CLUSTER: 'flyte.setActiveCluster',
+  OPEN_TUI: 'flyte.openTui',
 } as const;
 
 export const VIEWS = {

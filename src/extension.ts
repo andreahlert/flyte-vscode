@@ -99,6 +99,11 @@ export async function activate(
     vscode.commands.registerCommand(COMMANDS.SET_ACTIVE_CLUSTER, (item) => {
       clusterTreeProvider.setActive(item).then(() => codeLensProvider.refresh());
     }),
+    vscode.commands.registerCommand(COMMANDS.OPEN_TUI, () => {
+      const terminal = vscode.window.createTerminal('Flyte TUI');
+      terminal.show();
+      terminal.sendText('flyte start tui');
+    }),
   );
 
   // Refresh on file save
