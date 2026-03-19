@@ -13,6 +13,7 @@
 #   ./scripts/setup-local-cluster.sh destroy  # Remove everything
 #
 set -euo pipefail
+trap '' INT
 
 CLUSTER_NAME="flyte"
 REGISTRY_NAME="flyte-registry"
