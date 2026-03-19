@@ -45,16 +45,16 @@ check_prereqs() {
     exit 1
   fi
 
-  # Always use a clean clone from origin/main
+  # Always use a clean clone from the v2 branch
   local LOCAL_CLONE="$FLYTE_DATA_DIR/flyte"
   if [ -d "$LOCAL_CLONE/.git" ]; then
-    info "Updating Flyte repo from origin/main..."
-    git -C "$LOCAL_CLONE" fetch origin main --depth 1 2>/dev/null
-    git -C "$LOCAL_CLONE" reset --hard origin/main 2>/dev/null
+    info "Updating Flyte repo from v2 branch..."
+    git -C "$LOCAL_CLONE" fetch origin v2 --depth 1 2>/dev/null
+    git -C "$LOCAL_CLONE" checkout FETCH_HEAD 2>/dev/null
   else
-    info "Cloning Flyte repo (origin/main) to $LOCAL_CLONE..."
+    info "Cloning Flyte repo (v2 branch)..."
     mkdir -p "$FLYTE_DATA_DIR"
-    git clone --depth 1 --branch main https://github.com/flyteorg/flyte.git "$LOCAL_CLONE"
+    git clone --depth 1 --branch v2 https://github.com/flyteorg/flyte.git "$LOCAL_CLONE"
   fi
   FLYTE_REPO="$LOCAL_CLONE"
   MANAGER_DIR="$FLYTE_REPO/manager"
