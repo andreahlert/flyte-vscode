@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { initParser } from './parser/pythonParser.js';
 import { FlyteCodeLensProvider } from './providers/codeLensProvider.js';
+import { FlyteCompletionProvider } from './providers/completionProvider.js';
+import { FlyteHoverProvider } from './providers/hoverProvider.js';
 import { EnvironmentTreeProvider } from './views/environmentTreeProvider.js';
 import { TaskTreeProvider } from './views/taskTreeProvider.js';
 import { RunTreeProvider } from './views/runTreeProvider.js';
@@ -43,13 +45,14 @@ export async function activate(
   setBuildClusterProvider(getActive);
   setServeClusterProvider(getActive);
 
-  // CodeLens provider (receives cluster provider to check active cluster)
+  // Providers
   const codeLensProvider = new FlyteCodeLensProvider(clusterTreeProvider);
+  const pythonSelector = { language: FLYTE_LANGUAGE_ID, scheme: 'file' };
+
   context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(
-      { language: FLYTE_LANGUAGE_ID, scheme: 'file' },
-      codeLensProvider,
-    ),
+    vscode.languages.registerCodeLensProvider(pythonSelector, codeLensProvider),
+    vscode.languages.registerCompletionItemProvider(pythonSelector, new FlyteCompletionProvider(), '(', ',', ' ', '='),
+    vscode.languages.registerHoverProvider(pythonSelector, new FlyteHoverProvider()),
   );
 
   // Tree view providers
