@@ -62,12 +62,12 @@ export async function handleRunTask(
     const target = await vscode.window.showQuickPick(
       [
         {
-          label: '$(computer) Local',
+          label: 'Local',
           description: 'Run on your machine',
           value: 'local' as const,
         },
         {
-          label: `$(cloud) ${activeCluster.name}`,
+          label: activeCluster.name,
           description: activeCluster.endpoint,
           value: 'cluster' as const,
         },

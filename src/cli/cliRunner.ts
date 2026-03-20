@@ -69,6 +69,8 @@ export async function runTask(
     return runInTerminal(
       'run',
       [
+        '--project', 'flytesnacks',
+        '--domain', 'development',
         ...registryArgs(cluster),
         '--follow',
         filePath,
@@ -93,7 +95,7 @@ export async function deploy(
 ): Promise<vscode.Terminal> {
   return runInTerminal(
     'deploy',
-    [...registryArgs(cluster), filePath, ...extraArgs],
+    ['--project', 'flytesnacks', '--domain', 'development', ...registryArgs(cluster), filePath, ...extraArgs],
     'Flyte: Deploy',
     clusterArgs(cluster),
   );
