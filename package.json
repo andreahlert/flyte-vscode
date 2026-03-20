@@ -120,10 +120,6 @@
     "views": {
       "flyte-explorer": [
         {
-          "id": "flyte.clusters",
-          "name": "Clusters"
-        },
-        {
           "id": "flyte.environments",
           "name": "Environments"
         },
@@ -132,12 +128,16 @@
           "name": "Tasks"
         },
         {
-          "id": "flyte.runs",
-          "name": "Runs"
-        },
-        {
           "id": "flyte.apps",
           "name": "Apps"
+        },
+        {
+          "id": "flyte.clusters",
+          "name": "Clusters"
+        },
+        {
+          "id": "flyte.runs",
+          "name": "Runs"
         }
       ]
     },
