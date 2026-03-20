@@ -32,9 +32,9 @@ code { background: var(--vscode-textCodeBlock-background); padding: 1px 4px; bor
 .logo-container { margin-bottom: 16px; }
 .logo { width: 56px; height: 56px; }
 .subtitle { color: var(--vscode-descriptionForeground); margin-bottom: 24px; }
-.landing-buttons { margin-top: 16px; width: 100%; }
+.landing-buttons { margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .landing-btn {
-  width: 100%;
+  padding: 6px 32px;
   margin-bottom: 4px;
   --button-primary-background: #6C3FC5;
   --button-primary-hover-background: #5a32a8;
