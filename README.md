@@ -2,7 +2,7 @@
 
 VS Code extension for [Flyte V2](https://github.com/flyteorg/flyte-sdk) with code intelligence, visualization, CLI integration, and cluster management.
 
-![Sidebar](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-sidebar.gif)
+![Sidebar](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/screenshot-sidebar.png)
 
 ## Features
 
@@ -12,19 +12,19 @@ Parameter suggestions inside `TaskEnvironment()`, `Resources()`, `AppEnvironment
 
 After `gpu=` suggests all valid accelerators (T4, A100, H100, etc). After `cache=` suggests auto, disable, override.
 
-![Autocomplete](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-completion.gif)
+![Autocomplete](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/screenshot-completion.png)
 
 ### Hover Documentation
 
 Hover over any Flyte class or parameter to see inline docs with type info, defaults, and descriptions. Also covers `flyte.run`, `flyte.deploy`, `flyte.map`, `flyte.group`, `flyte.trace`, and more.
 
-![Hover](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-hover.gif)
+![Hover](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/screenshot-hover.png)
 
 ### CodeLens
 
 `Run Task` and `Graph` actions appear above every `@env.task` function. Run Task only shows for tasks where all parameters have defaults. When a cluster is active, asks whether to run locally (with TUI) or on the cluster.
 
-![CodeLens](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-codelens.gif)
+![CodeLens](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/screenshot-codelens.png)
 
 ### Sidebar
 
