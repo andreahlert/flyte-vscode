@@ -46,9 +46,10 @@ export async function runInTerminal(
   command: string,
   args: string[],
   name?: string,
+  globalArgs: string[] = [],
 ): Promise<vscode.Terminal> {
   const cliPath = await getCliPath();
-  const fullCommand = [cliPath, command, ...args].map(shellEscape).join(' ');
+  const fullCommand = [cliPath, ...globalArgs, command, ...args].map(shellEscape).join(' ');
 
   const terminal = vscode.window.createTerminal({
     name: name ?? `Flyte: ${command}`,
@@ -68,7 +69,6 @@ export async function runTask(
     return runInTerminal(
       'run',
       [
-        ...clusterArgs(cluster),
         ...registryArgs(cluster),
         '--follow',
         filePath,
@@ -76,6 +76,7 @@ export async function runTask(
         ...extraArgs,
       ],
       `Run: ${taskName} (${cluster.name})`,
+      clusterArgs(cluster),
     );
   }
   return runInTerminal(
@@ -92,8 +93,9 @@ export async function deploy(
 ): Promise<vscode.Terminal> {
   return runInTerminal(
     'deploy',
-    [...clusterArgs(cluster), ...registryArgs(cluster), filePath, ...extraArgs],
+    [...registryArgs(cluster), filePath, ...extraArgs],
     'Flyte: Deploy',
+    clusterArgs(cluster),
   );
 }
 
@@ -106,6 +108,7 @@ export async function build(
     'build',
     [...registryArgs(cluster), filePath, ...extraArgs],
     'Flyte: Build',
+    clusterArgs(cluster),
   );
 }
 
@@ -116,8 +119,9 @@ export async function serve(
 ): Promise<vscode.Terminal> {
   return runInTerminal(
     'serve',
-    [...clusterArgs(cluster), filePath, ...extraArgs],
+    [filePath, ...extraArgs],
     'Flyte: Serve',
+    clusterArgs(cluster),
   );
 }
 
@@ -128,7 +132,8 @@ export async function abort(
 ): Promise<vscode.Terminal> {
   return runInTerminal(
     'abort',
-    [...clusterArgs(cluster), runId, ...extraArgs],
+    [runId, ...extraArgs],
     'Flyte: Abort',
+    clusterArgs(cluster),
   );
 }
