@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../components/Button';
 import { CodeBlock } from '../components/CodeBlock';
-import { Input, Select, Toggle } from '../components/Input';
+import { Input, ComboBox, Select, Toggle } from '../components/Input';
 import { post } from '../vscode';
 import type { AppState } from '../types';
 import {
@@ -14,6 +14,11 @@ import {
   type TaskConfig,
   type AppConfig,
 } from './codegen';
+import {
+  CPU_OPTIONS, MEMORY_OPTIONS, GPU_OPTIONS, CACHE_OPTIONS,
+  TYPE_OPTIONS, RETURN_TYPE_OPTIONS, PORT_OPTIONS,
+  validateEnvName, validateVarName, validateFunctionName, validatePort,
+} from './options';
 
 const STEPS = [
   { id: 'environment', title: 'Environment', desc: 'Define your execution resources' },
@@ -165,42 +170,47 @@ function EnvironmentStep({
           value={env.varName}
           onChange={e => update({ varName: e.target.value })}
           placeholder="env"
+          error={validateVarName(env.varName)}
         />
         <Input
           label="Environment name"
           value={env.name}
           onChange={e => update({ name: e.target.value })}
           placeholder="my-pipeline"
+          error={validateEnvName(env.name)}
         />
       </div>
 
       <p className="text-[10px] font-medium opacity-50 uppercase tracking-wider mt-1">Resources</p>
 
       <div className="grid grid-cols-3 gap-2">
-        <Input
+        <ComboBox
           label="CPU"
           value={env.cpu}
-          onChange={e => update({ cpu: e.target.value })}
+          onChange={v => update({ cpu: v })}
+          options={CPU_OPTIONS}
           placeholder="2"
         />
-        <Input
+        <ComboBox
           label="Memory"
           value={env.memory}
-          onChange={e => update({ memory: e.target.value })}
+          onChange={v => update({ memory: v })}
+          options={MEMORY_OPTIONS}
           placeholder="4Gi"
         />
-        <Input
+        <ComboBox
           label="GPU"
           value={env.gpu}
-          onChange={e => update({ gpu: e.target.value })}
-          placeholder="T4:1"
+          onChange={v => update({ gpu: v })}
+          options={GPU_OPTIONS}
+          placeholder="None"
           hint="optional"
         />
       </div>
 
-      <div className="flex gap-4">
-        <Toggle label="Cache" checked={env.cache} onChange={v => update({ cache: v })} />
-        <Toggle label="Interruptible" checked={env.interruptible} onChange={v => update({ interruptible: v })} />
+      <div className="flex gap-4 mt-1">
+        <Toggle label="Cache" checked={env.cache} onChange={v => update({ cache: v })} hint="Cache task outputs" />
+        <Toggle label="Interruptible" checked={env.interruptible} onChange={v => update({ interruptible: v })} hint="Can be preempted" />
       </div>
 
       <p className="text-[10px] font-medium opacity-50 uppercase tracking-wider mt-1">Preview</p>
@@ -276,23 +286,25 @@ function TasksStep({
               value={task.functionName}
               onChange={e => updateTask(i, { functionName: e.target.value })}
               placeholder="my_task"
+              error={validateFunctionName(task.functionName)}
             />
-            <Input
+            <ComboBox
               label="Return type"
               value={task.returnType}
-              onChange={e => updateTask(i, { returnType: e.target.value })}
+              onChange={v => updateTask(i, { returnType: v })}
+              options={RETURN_TYPE_OPTIONS}
               placeholder="str"
             />
           </div>
 
           <div className="flex gap-4 mb-2">
-            <Toggle label="Async" checked={task.isAsync} onChange={v => updateTask(i, { isAsync: v })} />
-            <Input
+            <Toggle label="Async" checked={task.isAsync} onChange={v => updateTask(i, { isAsync: v })} hint="Recommended" />
+            <ComboBox
               label="Retries"
               value={task.retries}
-              onChange={e => updateTask(i, { retries: e.target.value })}
+              onChange={v => updateTask(i, { retries: v })}
+              options={['0', '1', '2', '3', '5']}
               placeholder="0"
-              className="w-16"
             />
           </div>
 
@@ -304,11 +316,13 @@ function TasksStep({
                 value={p.name}
                 onChange={e => updateParam(i, j, { name: e.target.value })}
                 placeholder="param name"
+                error={p.name ? validateVarName(p.name) : undefined}
               />
-              <Input
+              <ComboBox
                 label=""
                 value={p.type}
-                onChange={e => updateParam(i, j, { type: e.target.value })}
+                onChange={v => updateParam(i, j, { type: v })}
+                options={TYPE_OPTIONS}
                 placeholder="type"
               />
             </div>
@@ -358,13 +372,13 @@ function AppsStep({
       {!skip && (
         <>
           <div className="grid grid-cols-2 gap-2">
-            <Input label="Variable name" value={app.varName} onChange={e => update({ varName: e.target.value })} placeholder="app" />
-            <Input label="App name" value={app.name} onChange={e => update({ name: e.target.value })} placeholder="my-api" />
+            <Input label="Variable name" value={app.varName} onChange={e => update({ varName: e.target.value })} placeholder="app" error={validateVarName(app.varName)} />
+            <Input label="App name" value={app.name} onChange={e => update({ name: e.target.value })} placeholder="my-api" error={validateEnvName(app.name)} />
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <Input label="Port" value={app.port} onChange={e => update({ port: e.target.value })} placeholder="8080" />
-            <Input label="CPU" value={app.cpu} onChange={e => update({ cpu: e.target.value })} placeholder="1" />
-            <Input label="Memory" value={app.memory} onChange={e => update({ memory: e.target.value })} placeholder="2Gi" />
+            <ComboBox label="Port" value={app.port} onChange={v => update({ port: v })} options={PORT_OPTIONS} placeholder="8080" error={validatePort(app.port)} />
+            <ComboBox label="CPU" value={app.cpu} onChange={v => update({ cpu: v })} options={CPU_OPTIONS} placeholder="1" />
+            <ComboBox label="Memory" value={app.memory} onChange={v => update({ memory: v })} options={MEMORY_OPTIONS} placeholder="2Gi" />
           </div>
           <p className="text-[10px] font-medium opacity-50 uppercase tracking-wider mt-1">Preview</p>
           <CodeBlock>{generateApp(app)}</CodeBlock>
