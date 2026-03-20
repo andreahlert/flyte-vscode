@@ -20,13 +20,34 @@ a:hover { text-decoration: underline; }
 code { background: var(--vscode-textCodeBlock-background); padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
 
 /* Landing */
-.landing { text-align: center; padding-top: 20px; }
-.logo-container { margin-bottom: 12px; }
-.logo { width: 48px; height: 48px; fill: #6C3FC5; }
-.subtitle { color: var(--vscode-descriptionForeground); margin-bottom: 16px; }
-.landing-buttons { margin-top: 16px; }
-.landing-btn { width: 100%; margin-bottom: 4px; }
-.btn-desc { color: var(--vscode-descriptionForeground); font-size: 0.85em; margin: 0 0 12px 0; }
+.landing {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 0 16px;
+}
+.logo-container { margin-bottom: 16px; }
+.logo { width: 56px; height: 56px; }
+.subtitle { color: var(--vscode-descriptionForeground); margin-bottom: 24px; }
+.landing-buttons { margin-top: 16px; width: 100%; }
+.landing-btn {
+  width: 100%;
+  margin-bottom: 4px;
+  --button-primary-background: #6C3FC5;
+  --button-primary-hover-background: #5a32a8;
+  --button-primary-foreground: #ffffff;
+  --button-secondary-background: transparent;
+  --button-secondary-hover-background: rgba(108, 63, 197, 0.15);
+  --button-secondary-foreground: #6C3FC5;
+  --button-border: #6C3FC5;
+}
+.landing-btn[appearance="secondary"] {
+  border: 1px solid #6C3FC5;
+}
+.btn-desc { color: var(--vscode-descriptionForeground); font-size: 0.85em; margin: 0 0 16px 0; }
 
 /* Wizard */
 .wizard { padding-top: 8px; }
