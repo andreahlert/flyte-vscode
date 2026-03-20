@@ -2,7 +2,7 @@
 
 VS Code extension for [Flyte V2](https://github.com/flyteorg/flyte-sdk) with code intelligence, visualization, CLI integration, and cluster management.
 
-![Sidebar](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/screenshot-sidebar.png)
+![Demo](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-full.gif)
 
 ## Features
 
