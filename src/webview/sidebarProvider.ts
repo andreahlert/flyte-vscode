@@ -85,6 +85,9 @@ export class FlyteSidebarProvider implements vscode.WebviewViewProvider {
         case 'createSnippet':
           this.insertSnippet(msg.snippet);
           break;
+        case 'insertCode':
+          this.insertGeneratedCode(msg.code);
+          break;
       }
     });
   }
@@ -98,6 +101,24 @@ export class FlyteSidebarProvider implements vscode.WebviewViewProvider {
     await vscode.commands.executeCommand('editor.action.insertSnippet', {
       name: snippetId,
     });
+  }
+
+  private async insertGeneratedCode(code: string): Promise<void> {
+    const editor = vscode.window.activeTextEditor;
+    if (editor && editor.document.languageId === 'python') {
+      // Insert into current Python file
+      const position = editor.selection.active;
+      await editor.edit(editBuilder => {
+        editBuilder.insert(position, code);
+      });
+    } else {
+      // Create a new untitled Python file with the code
+      const doc = await vscode.workspace.openTextDocument({
+        language: 'python',
+        content: code,
+      });
+      await vscode.window.showTextDocument(doc);
+    }
   }
 
   private gatherState() {
