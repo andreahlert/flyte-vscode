@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-flyte-purple: #6C3FC5;
+  --color-flyte-purple-hover: #5a32a8;
+  --color-flyte-purple-light: rgba(108, 63, 197, 0.15);
+  --color-union-gold: #D4A843;
+  --color-union-gold-hover: #c49a3a;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  background: transparent;
+}

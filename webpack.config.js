@@ -60,24 +60,24 @@ const webviewConfig = {
   target: 'web',
   mode: 'none',
 
-  entry: './webview-ui/src/main.ts',
+  entry: './webview-ui/src/main.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'webview.js',
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js'],
   },
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         exclude: /node_modules/,
         use: [{ loader: 'ts-loader', options: { configFile: 'tsconfig.webview.json' } }],
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
     ],
   },

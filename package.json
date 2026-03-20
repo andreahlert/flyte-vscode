@@ -222,16 +222,29 @@
     "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^20.11.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "@vscode/test-electron": "^2.3.8",
     "@vscode/vsce": "^2.22.0",
+    "autoprefixer": "^10.4.27",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "copy-webpack-plugin": "^12.0.0",
     "css-loader": "^7.1.4",
     "eslint": "^8.56.0",
+    "lucide-react": "^0.577.0",
+    "postcss": "^8.5.8",
+    "postcss-loader": "^8.2.1",
     "style-loader": "^4.0.0",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.2",
+    "tailwindcss-animate": "^1.0.7",
     "tree-sitter-cli": "^0.26.7",
     "tree-sitter-python": "^0.25.0",
     "ts-loader": "^9.5.1",
@@ -242,6 +255,8 @@
   },
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.4.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "web-tree-sitter": "^0.26.7"
   }
 }
