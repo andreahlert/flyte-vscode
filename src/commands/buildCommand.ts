@@ -2,10 +2,10 @@ import * as vscode from 'vscode';
 import { build } from '../cli/cliRunner.js';
 import type { ClusterConfig } from '../views/clusterTreeProvider.js';
 
-let getActiveCluster: (() => ClusterConfig | undefined) | undefined;
+let getAllClusters: (() => ClusterConfig[]) | undefined;
 
-export function setBuildClusterProvider(fn: () => ClusterConfig | undefined): void {
-  getActiveCluster = fn;
+export function setBuildClusterProvider(fn: () => ClusterConfig[]): void {
+  getAllClusters = fn;
 }
 
 export async function handleBuild(uri?: vscode.Uri): Promise<void> {
@@ -17,8 +17,17 @@ export async function handleBuild(uri?: vscode.Uri): Promise<void> {
     return;
   }
 
+  const clusters = getAllClusters?.() ?? [];
+  const cluster = clusters.length === 1
+    ? clusters[0]
+    : clusters.length > 1
+      ? (await vscode.window.showQuickPick(
+          clusters.map((c) => ({ label: c.name, description: c.endpoint, cluster: c })),
+          { placeHolder: 'Build for which cluster?' },
+        ))?.cluster
+      : undefined;
+
   try {
-    const cluster = getActiveCluster?.();
     await build(fileUri.fsPath, cluster);
   } catch (err) {
     vscode.window.showErrorMessage(

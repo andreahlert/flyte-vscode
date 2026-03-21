@@ -98,11 +98,6 @@
         "icon": "$(trash)"
       },
       {
-        "command": "flyte.setActiveCluster",
-        "title": "Flyte: Set Active Cluster",
-        "icon": "$(play)"
-      },
-      {
         "command": "flyte.renameCluster",
         "title": "Flyte: Rename Cluster",
         "icon": "$(edit)"
@@ -188,11 +183,6 @@
         {
           "command": "flyte.abort",
           "when": "viewItem == flyteRun",
-          "group": "inline"
-        },
-        {
-          "command": "flyte.setActiveCluster",
-          "when": "viewItem =~ /^flyteCluster/",
           "group": "inline"
         },
         {

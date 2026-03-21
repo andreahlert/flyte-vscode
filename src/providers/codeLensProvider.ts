@@ -24,7 +24,7 @@ export class FlyteCodeLensProvider implements vscode.CodeLensProvider {
 
     const info = extractFlyteInfo(tree);
     const lenses: vscode.CodeLens[] = [];
-    const hasActiveCluster = this.clusterProvider.getActive() !== undefined;
+    const hasClusters = this.clusterProvider.getClusters().length > 0;
 
     for (const task of info.tasks) {
       const range = task.decoratorLocation;
@@ -43,13 +43,13 @@ export class FlyteCodeLensProvider implements vscode.CodeLensProvider {
         );
       }
 
-      if (hasActiveCluster) {
+      if (hasClusters) {
         lenses.push(
           new vscode.CodeLens(range, {
             title: '$(cloud-upload) Deploy',
             command: COMMANDS.DEPLOY,
             arguments: [document.uri],
-            tooltip: `Deploy to ${this.clusterProvider.getActive()!.name}`,
+            tooltip: 'Deploy to a cluster',
           }),
         );
       }

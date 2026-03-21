@@ -10,12 +10,10 @@ export interface ClusterConfig {
 }
 
 const STORAGE_KEY = 'flyte.clusters';
-const ACTIVE_KEY = 'flyte.activeCluster';
 
 export class ClusterTreeItem extends vscode.TreeItem {
   constructor(
     public readonly cluster: ClusterConfig,
-    public readonly isActive: boolean,
     extensionPath: string,
   ) {
     super(cluster.name, vscode.TreeItemCollapsibleState.None);
@@ -58,15 +56,6 @@ export class ClusterTreeProvider
     return this.context.globalState.update(STORAGE_KEY, clusters);
   }
 
-  getActiveName(): string | undefined {
-    return this.context.globalState.get<string>(ACTIVE_KEY);
-  }
-
-  getActive(): ClusterConfig | undefined {
-    const name = this.getActiveName();
-    if (!name) return undefined;
-    return this.getClusters().find((c) => c.name === name);
-  }
 
   async connectUnion(): Promise<void> {
     const endpoint = await vscode.window.showInputBox({
@@ -222,10 +211,6 @@ export class ClusterTreeProvider
 
     await this.saveClusters(clusters);
 
-    if (clusters.length === 1) {
-      await this.setActive(cluster.name);
-    }
-
     this.refresh();
   }
 
@@ -263,28 +248,6 @@ export class ClusterTreeProvider
     const clusters = this.getClusters().filter((c) => c.name !== name);
     await this.saveClusters(clusters);
 
-    if (this.getActiveName() === name) {
-      await this.context.globalState.update(
-        ACTIVE_KEY,
-        clusters[0]?.name,
-      );
-    }
-
-    this.refresh();
-  }
-
-  async setActive(nameOrItem?: string | ClusterTreeItem): Promise<void> {
-    let name: string | undefined;
-    if (typeof nameOrItem === 'string') {
-      name = nameOrItem;
-    } else if (nameOrItem instanceof ClusterTreeItem) {
-      name = nameOrItem.cluster.name;
-    } else {
-      name = await this.pickCluster('Select active cluster');
-    }
-    if (!name) return;
-
-    await this.context.globalState.update(ACTIVE_KEY, name);
     this.refresh();
   }
 
@@ -306,11 +269,6 @@ export class ClusterTreeProvider
 
     cluster.name = newName;
     await this.saveClusters(clusters);
-
-    if (this.getActiveName() === oldName) {
-      await this.context.globalState.update(ACTIVE_KEY, newName);
-    }
-
     this.refresh();
   }
 
@@ -392,14 +350,7 @@ export class ClusterTreeProvider
 
   async getChildren(): Promise<ClusterTreeItem[]> {
     const clusters = this.getClusters();
-    const activeName = this.getActiveName();
-
-    if (clusters.length === 0) {
-      return [];
-    }
-
-    return clusters.map(
-      (c) => new ClusterTreeItem(c, c.name === activeName, this.context.extensionPath),
-    );
+    if (clusters.length === 0) return [];
+    return clusters.map((c) => new ClusterTreeItem(c, this.context.extensionPath));
   }
 }
