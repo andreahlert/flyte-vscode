@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+  <style>
+    @keyframes hoverShow { 0%,20%{opacity:0;transform:translateY(4px)} 30%,85%{opacity:1;transform:translateY(0)} 95%,100%{opacity:0} }
+    .mono { font-family: 'Cascadia Code','Fira Code','SF Mono',Consolas,monospace }
+    .sans { font-family: -apple-system,'Segoe UI',system-ui,sans-serif }
+  </style>
+
+  <!-- Window -->
+  <rect width="800" height="420" rx="8" fill="#1e1e1e"/>
+  <rect width="800" height="30" rx="8" fill="#323233"/>
+  <rect x="0" y="22" width="800" height="8" fill="#323233"/>
+  <circle cx="16" cy="15" r="5" fill="#ff5f57"/>
+  <circle cx="34" cy="15" r="5" fill="#ffbd2e"/>
+  <circle cx="52" cy="15" r="5" fill="#28c840"/>
+  <text x="400" y="19" text-anchor="middle" fill="#999" font-size="11" class="sans">pipeline.py</text>
+
+  <!-- Line numbers -->
+  <g fill="#555" font-size="12" class="mono">
+    <text x="18" y="56">23</text>
+    <text x="18" y="72">24</text>
+    <text x="18" y="88">25</text>
+    <text x="18" y="104">26</text>
+    <text x="18" y="120">27</text>
+    <text x="18" y="136">28</text>
+    <text x="18" y="152">29</text>
+    <text x="18" y="168">30</text>
+    <text x="18" y="184">31</text>
+  </g>
+
+  <!-- Code -->
+  <text x="48" y="56" fill="#6a9955" font-size="12" class="mono"># ==================================================</text>
+  <text x="48" y="72" fill="#6a9955" font-size="12" class="mono"># CPU environment for data processing tasks</text>
+
+  <!-- Line 25: highlighted word -->
+  <text x="48" y="88" fill="#9cdcfe" font-size="12" class="mono">data_env</text>
+  <text x="112" y="88" fill="#d4d4d4" font-size="12" class="mono">= flyte.</text>
+  <rect x="172" y="76" width="124" height="16" rx="2" fill="#264f78" fill-opacity="0.4"/>
+  <text x="172" y="88" fill="#4ec9b0" font-size="12" class="mono">TaskEnvironment</text>
+  <text x="296" y="88" fill="#d4d4d4" font-size="12" class="mono">(</text>
+
+  <text x="68" y="104" fill="#9cdcfe" font-size="12" class="mono">name</text>
+  <text x="102" y="104" fill="#d4d4d4" font-size="12" class="mono">=</text>
+  <text x="112" y="104" fill="#ce9178" font-size="12" class="mono">"data-processing"</text>
+  <text x="260" y="104" fill="#d4d4d4" font-size="12" class="mono">,</text>
+
+  <text x="68" y="120" fill="#9cdcfe" font-size="12" class="mono">image</text>
+  <text x="110" y="120" fill="#d4d4d4" font-size="12" class="mono">=(</text>
+
+  <text x="88" y="136" fill="#d4d4d4" font-size="12" class="mono">flyte.Image.from_debian_base()</text>
+
+  <text x="88" y="152" fill="#d4d4d4" font-size="12" class="mono">.with_pip_packages(</text>
+  <text x="242" y="152" fill="#ce9178" font-size="12" class="mono">"pandas"</text>
+  <text x="304" y="152" fill="#d4d4d4" font-size="12" class="mono">, ...)</text>
+
+  <text x="68" y="168" fill="#d4d4d4" font-size="12" class="mono">),</text>
+  <text x="68" y="184" fill="#9cdcfe" font-size="12" class="mono">resources</text>
+  <text x="140" y="184" fill="#d4d4d4" font-size="12" class="mono">=flyte.Resources(cpu=2, memory=</text>
+  <text x="452" y="184" fill="#ce9178" font-size="12" class="mono">"4Gi"</text>
+  <text x="490" y="184" fill="#d4d4d4" font-size="12" class="mono">),</text>
+
+  <!-- Hover tooltip -->
+  <g style="animation: hoverShow 6s ease-in-out infinite">
+    <rect x="120" y="50" width="520" height="195" rx="6" fill="#252526" stroke="#454545" stroke-width="1"/>
+
+    <text x="135" y="72" fill="#6C3FC5" font-size="13" class="mono" font-weight="bold">flyte.TaskEnvironment</text>
+
+    <line x1="135" y1="80" x2="625" y2="80" stroke="#404040"/>
+
+    <text x="135" y="98" fill="#ccc" font-size="12" class="mono">Defines the execution environment for tasks:</text>
+    <text x="135" y="114" fill="#ccc" font-size="12" class="mono">image, resources, caching, and scheduling.</text>
+
+    <line x1="135" y1="124" x2="625" y2="124" stroke="#404040"/>
+
+    <text x="135" y="142" fill="#999" font-size="11" class="mono" font-weight="bold">Parameters:</text>
+    <text x="135" y="160" fill="#dcdcaa" font-size="11" class="mono">- name: str</text>
+    <text x="280" y="160" fill="#d7ba7d" font-size="11" class="mono">(required)</text>
+    <text x="135" y="176" fill="#dcdcaa" font-size="11" class="mono">- image: str | Image = "auto"</text>
+    <text x="135" y="192" fill="#dcdcaa" font-size="11" class="mono">- resources: Resources = None</text>
+    <text x="135" y="208" fill="#dcdcaa" font-size="11" class="mono">- cache: "auto" | "disable" | Cache</text>
+    <text x="135" y="224" fill="#dcdcaa" font-size="11" class="mono">- secrets: str | Secret | list = None</text>
+    <text x="135" y="240" fill="#888" font-size="10" class="mono">... and 8 more</text>
+  </g>
+
+  <!-- Cursor pointer -->
+  <g style="animation: hoverShow 6s ease-in-out infinite">
+    <path d="M230 96 L230 110 L240 105 L236 103 L244 96 L240 94 L232 102 Z" fill="#fff" opacity="0.7"/>
+  </g>
+
+  <!-- Status bar -->
+  <rect x="0" y="400" width="800" height="20" fill="#007acc"/>
+  <text x="15" y="414" fill="#fff" font-size="11" class="sans">Flyte</text>
+  <text x="740" y="414" fill="#fff" font-size="11" class="sans">Python</text>
+</svg>

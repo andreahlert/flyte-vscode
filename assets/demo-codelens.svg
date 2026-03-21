@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+  <style>
+    @keyframes clickPulse { 0%,45%{fill-opacity:0} 50%{fill-opacity:0.4} 55%,100%{fill-opacity:0} }
+    @keyframes tuiShow { 0%,55%{opacity:0} 65%,90%{opacity:1} 100%{opacity:0} }
+    .mono { font-family: 'Cascadia Code','Fira Code','SF Mono',Consolas,monospace }
+    .sans { font-family: -apple-system,'Segoe UI',system-ui,sans-serif }
+  </style>
+
+  <!-- Window -->
+  <rect width="800" height="420" rx="8" fill="#1e1e1e"/>
+  <rect width="800" height="30" rx="8" fill="#323233"/>
+  <rect x="0" y="22" width="800" height="8" fill="#323233"/>
+  <circle cx="16" cy="15" r="5" fill="#ff5f57"/>
+  <circle cx="34" cy="15" r="5" fill="#ffbd2e"/>
+  <circle cx="52" cy="15" r="5" fill="#28c840"/>
+  <text x="400" y="19" text-anchor="middle" fill="#999" font-size="11" class="sans">pipeline.py</text>
+
+  <!-- Line numbers -->
+  <g fill="#555" font-size="12" class="mono">
+    <text x="18" y="60">95</text>
+    <text x="18" y="76">96</text>
+    <text x="18" y="96">97</text>
+    <text x="18" y="112">98</text>
+    <text x="18" y="128">99</text>
+    <text x="12" y="144">100</text>
+    <text x="12" y="160">101</text>
+    <text x="12" y="176">102</text>
+    <text x="12" y="192">103</text>
+    <text x="12" y="208">104</text>
+    <text x="12" y="224">105</text>
+  </g>
+
+  <!-- CodeLens line -->
+  <text x="48" y="60" fill="#999" font-size="11" class="mono">▷ Run Task</text>
+  <text x="140" y="60" fill="#555" font-size="11" class="mono">|</text>
+  <text x="152" y="60" fill="#999" font-size="11" class="mono">⊞ Graph</text>
+
+  <!-- Click pulse on Run Task -->
+  <rect x="44" y="48" width="90" height="16" rx="3" fill="#6C3FC5">
+    <animate attributeName="fill-opacity" values="0;0;0;0;0.4;0;0;0;0;0" dur="7s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Decorator -->
+  <text x="48" y="76" fill="#dcdcaa" font-size="12" class="mono">@data_env</text>
+  <text x="125" y="76" fill="#d4d4d4" font-size="12" class="mono">.</text>
+  <text x="132" y="76" fill="#dcdcaa" font-size="12" class="mono">task</text>
+
+  <!-- Function def -->
+  <text x="48" y="96" fill="#569cd6" font-size="12" class="mono">async</text>
+  <text x="96" y="96" fill="#569cd6" font-size="12" class="mono">def</text>
+  <text x="128" y="96" fill="#dcdcaa" font-size="12" class="mono">fetch_dataset</text>
+  <text x="234" y="96" fill="#d4d4d4" font-size="12" class="mono">(</text>
+
+  <text x="68" y="112" fill="#9cdcfe" font-size="12" class="mono">source_url</text>
+  <text x="152" y="112" fill="#d4d4d4" font-size="12" class="mono">:</text>
+  <text x="162" y="112" fill="#4ec9b0" font-size="12" class="mono">str</text>
+  <text x="188" y="112" fill="#d4d4d4" font-size="12" class="mono">,</text>
+
+  <text x="68" y="128" fill="#9cdcfe" font-size="12" class="mono">split</text>
+  <text x="110" y="128" fill="#d4d4d4" font-size="12" class="mono">:</text>
+  <text x="120" y="128" fill="#4ec9b0" font-size="12" class="mono">str</text>
+  <text x="146" y="128" fill="#d4d4d4" font-size="12" class="mono">=</text>
+  <text x="158" y="128" fill="#ce9178" font-size="12" class="mono">"train"</text>
+  <text x="210" y="128" fill="#d4d4d4" font-size="12" class="mono">,</text>
+
+  <text x="48" y="144" fill="#d4d4d4" font-size="12" class="mono">) -></text>
+  <text x="92" y="144" fill="#4ec9b0" font-size="12" class="mono">dict</text>
+  <text x="122" y="144" fill="#d4d4d4" font-size="12" class="mono">:</text>
+
+  <text x="68" y="160" fill="#6a9955" font-size="12" class="mono">"""Download and validate a dataset."""</text>
+
+  <text x="68" y="176" fill="#9cdcfe" font-size="12" class="mono">data</text>
+  <text x="98" y="176" fill="#d4d4d4" font-size="12" class="mono">= {</text>
+  <text x="88" y="192" fill="#ce9178" font-size="12" class="mono">"source"</text>
+  <text x="152" y="192" fill="#d4d4d4" font-size="12" class="mono">: source_url,</text>
+  <text x="88" y="208" fill="#ce9178" font-size="12" class="mono">"split"</text>
+  <text x="142" y="208" fill="#d4d4d4" font-size="12" class="mono">: split,</text>
+  <text x="88" y="224" fill="#ce9178" font-size="12" class="mono">"num_samples"</text>
+  <text x="192" y="224" fill="#d4d4d4" font-size="12" class="mono">:</text>
+  <text x="202" y="224" fill="#b5cea8" font-size="12" class="mono">50000</text>
+  <text x="242" y="224" fill="#d4d4d4" font-size="12" class="mono">,</text>
+
+  <!-- TUI popup (appears after click) -->
+  <g style="animation: tuiShow 7s ease-in-out infinite">
+    <rect x="140" y="255" width="520" height="120" rx="6" fill="#1a1a2e" stroke="#6C3FC5" stroke-width="2"/>
+
+    <!-- TUI header -->
+    <rect x="140" y="255" width="520" height="24" rx="6" fill="#6C3FC5"/>
+    <rect x="140" y="270" width="520" height="9" fill="#6C3FC5"/>
+    <text x="400" y="272" text-anchor="middle" fill="#fff" font-size="11" class="mono" font-weight="bold">Flyte Local Run — completed</text>
+
+    <!-- TUI content -->
+    <text x="156" y="300" fill="#28c840" font-size="12" class="mono">✓</text>
+    <text x="172" y="300" fill="#ccc" font-size="12" class="mono">fetch_dataset</text>
+    <text x="298" y="300" fill="#888" font-size="11" class="mono">(0.01s)</text>
+
+    <text x="156" y="324" fill="#888" font-size="11" class="mono">Output:</text>
+    <text x="210" y="324" fill="#ccc" font-size="11" class="mono">{'source': 's3://test', 'split': 'train',</text>
+    <text x="210" y="340" fill="#ccc" font-size="11" class="mono"> 'num_samples': 50000, 'columns': [...]}</text>
+
+    <!-- TUI bottom bar -->
+    <rect x="140" y="353" width="520" height="22" rx="0" fill="#2d2d4e"/>
+    <text x="156" y="368" fill="#ccc" font-size="10" class="mono">q Quit  d Details  1 Logs  [ Prev  ] Next</text>
+  </g>
+
+  <!-- Status bar -->
+  <rect x="0" y="400" width="800" height="20" fill="#007acc"/>
+  <text x="15" y="414" fill="#fff" font-size="11" class="sans">Flyte</text>
+  <text x="740" y="414" fill="#fff" font-size="11" class="sans">Python</text>
+</svg>
