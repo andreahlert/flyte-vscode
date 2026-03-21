@@ -6,6 +6,7 @@ export interface ClusterConfig {
   insecure: boolean;
   type: 'union' | 'self-hosted';
   registry?: string;
+  status?: 'running' | 'paused';
 }
 
 const STORAGE_KEY = 'flyte.clusters';
@@ -18,14 +19,21 @@ export class ClusterTreeItem extends vscode.TreeItem {
     extensionPath: string,
   ) {
     super(cluster.name, vscode.TreeItemCollapsibleState.None);
-    this.description = isActive ? `${cluster.endpoint} (active)` : cluster.endpoint;
-    this.tooltip = `${cluster.name}\n${cluster.endpoint}\nType: ${cluster.type === 'union' ? 'Union.ai' : 'Self-Hosted'}${cluster.insecure ? '\nInsecure' : ''}`;
+    const isLocal = cluster.type === 'self-hosted' && cluster.registry;
+    const statusLabel = isLocal
+      ? (cluster.status === 'paused' ? ' (paused)' : ' (running)')
+      : '';
+    this.description = `${cluster.endpoint}${statusLabel}`;
+    this.tooltip = `${cluster.name}\n${cluster.endpoint}\nType: ${cluster.type === 'union' ? 'Union.ai' : 'Self-Hosted'}${statusLabel}${cluster.insecure ? '\nInsecure' : ''}`;
     const iconFile = cluster.type === 'union' ? 'union-icon.svg' : 'flyte-icon-purple.svg';
     this.iconPath = {
       light: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
       dark: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
     };
-    this.contextValue = 'flyteCluster';
+    const isPaused = cluster.status === 'paused';
+    this.contextValue = isLocal
+      ? (isPaused ? 'flyteClusterLocalPaused' : 'flyteClusterLocalRunning')
+      : 'flyteCluster';
   }
 }
 
@@ -149,6 +157,7 @@ export class ClusterTreeProvider
       insecure: true,
       type: 'self-hosted',
       registry: 'localhost:5050',
+      status: 'running',
     });
   }
 
@@ -276,6 +285,84 @@ export class ClusterTreeProvider
     if (!name) return;
 
     await this.context.globalState.update(ACTIVE_KEY, name);
+    this.refresh();
+  }
+
+  async renameCluster(item?: ClusterTreeItem): Promise<void> {
+    const oldName = item?.cluster.name ??
+      (await this.pickCluster('Select cluster to rename'));
+    if (!oldName) return;
+
+    const newName = await vscode.window.showInputBox({
+      prompt: 'New name for the cluster',
+      value: oldName,
+      ignoreFocusOut: true,
+    });
+    if (!newName || newName === oldName) return;
+
+    const clusters = this.getClusters();
+    const cluster = clusters.find((c) => c.name === oldName);
+    if (!cluster) return;
+
+    cluster.name = newName;
+    await this.saveClusters(clusters);
+
+    if (this.getActiveName() === oldName) {
+      await this.context.globalState.update(ACTIVE_KEY, newName);
+    }
+
+    this.refresh();
+  }
+
+  async pauseCluster(item?: ClusterTreeItem): Promise<void> {
+    const cluster = item?.cluster;
+    if (!cluster || cluster.type !== 'self-hosted' || !cluster.registry) return;
+
+    const scriptPath = vscode.Uri.joinPath(
+      vscode.Uri.file(this.context.extensionPath),
+      'scripts',
+      'setup-local-cluster.sh',
+    ).fsPath;
+
+    const terminal = vscode.window.createTerminal({
+      name: 'Flyte: Pause Cluster',
+      env: { FLYTE_SETUP_NONINTERACTIVE: '1' },
+    });
+    terminal.show();
+    terminal.sendText(`bash "${scriptPath}" stop`);
+
+    const clusters = this.getClusters();
+    const c = clusters.find((cl) => cl.name === cluster.name);
+    if (c) {
+      c.status = 'paused';
+      await this.saveClusters(clusters);
+    }
+    this.refresh();
+  }
+
+  async resumeCluster(item?: ClusterTreeItem): Promise<void> {
+    const cluster = item?.cluster;
+    if (!cluster || cluster.type !== 'self-hosted' || !cluster.registry) return;
+
+    const scriptPath = vscode.Uri.joinPath(
+      vscode.Uri.file(this.context.extensionPath),
+      'scripts',
+      'setup-local-cluster.sh',
+    ).fsPath;
+
+    const terminal = vscode.window.createTerminal({
+      name: 'Flyte: Resume Cluster',
+      env: { FLYTE_SETUP_NONINTERACTIVE: '1' },
+    });
+    terminal.show();
+    terminal.sendText(`bash "${scriptPath}" start`);
+
+    const clusters = this.getClusters();
+    const c = clusters.find((cl) => cl.name === cluster.name);
+    if (c) {
+      c.status = 'running';
+      await this.saveClusters(clusters);
+    }
     this.refresh();
   }
 

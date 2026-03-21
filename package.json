@@ -103,6 +103,21 @@
         "icon": "$(plug)"
       },
       {
+        "command": "flyte.renameCluster",
+        "title": "Flyte: Rename Cluster",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "flyte.pauseCluster",
+        "title": "Flyte: Pause Cluster",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "flyte.resumeCluster",
+        "title": "Flyte: Resume Cluster",
+        "icon": "$(play)"
+      },
+      {
         "command": "flyte.openTui",
         "title": "Flyte: Open TUI",
         "icon": "$(terminal)"
@@ -177,12 +192,27 @@
         },
         {
           "command": "flyte.setActiveCluster",
-          "when": "viewItem == flyteCluster",
+          "when": "viewItem =~ /^flyteCluster/",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.pauseCluster",
+          "when": "viewItem == flyteClusterLocalRunning",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.resumeCluster",
+          "when": "viewItem == flyteClusterLocalPaused",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.renameCluster",
+          "when": "viewItem =~ /^flyteCluster/",
           "group": "inline"
         },
         {
           "command": "flyte.removeCluster",
-          "when": "viewItem == flyteCluster",
+          "when": "viewItem =~ /^flyteCluster/",
           "group": "inline"
         }
       ]

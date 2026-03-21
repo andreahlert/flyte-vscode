@@ -15,6 +15,9 @@ export const COMMANDS = {
   ADD_CLUSTER: 'flyte.addCluster',
   REMOVE_CLUSTER: 'flyte.removeCluster',
   SET_ACTIVE_CLUSTER: 'flyte.setActiveCluster',
+  RENAME_CLUSTER: 'flyte.renameCluster',
+  PAUSE_CLUSTER: 'flyte.pauseCluster',
+  RESUME_CLUSTER: 'flyte.resumeCluster',
   OPEN_TUI: 'flyte.openTui',
 } as const;
 
