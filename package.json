@@ -100,7 +100,7 @@
       {
         "command": "flyte.setActiveCluster",
         "title": "Flyte: Set Active Cluster",
-        "icon": "$(plug)"
+        "icon": "$(play)"
       },
       {
         "command": "flyte.renameCluster",
