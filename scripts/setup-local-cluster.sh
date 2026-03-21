@@ -269,7 +269,13 @@ do_stop() {
   else
     warn "Flyte Manager not running."
   fi
-  info "k3d cluster remains running. Use '$0 destroy' to remove it."
+
+  if k3d cluster list -o json 2>/dev/null | grep -q "\"$CLUSTER_NAME\""; then
+    info "Stopping k3d cluster '$CLUSTER_NAME'..."
+    k3d cluster stop "$CLUSTER_NAME" 2>/dev/null || true
+  fi
+
+  info "Cluster paused. Use '$0 start' to resume."
 }
 
 do_status() {
