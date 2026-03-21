@@ -42,7 +42,7 @@ export class ClusterTreeProvider
     this._onDidChangeTreeData.fire();
   }
 
-  private getClusters(): ClusterConfig[] {
+  getClusters(): ClusterConfig[] {
     return this.context.globalState.get<ClusterConfig[]>(STORAGE_KEY, []);
   }
 

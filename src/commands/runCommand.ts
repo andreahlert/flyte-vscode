@@ -4,10 +4,10 @@ import { parseSource } from '../parser/pythonParser.js';
 import { extractFlyteInfo } from '../parser/flyteExtractor.js';
 import type { ClusterConfig } from '../views/clusterTreeProvider.js';
 
-let getActiveCluster: (() => ClusterConfig | undefined) | undefined;
+let getAllClusters: (() => ClusterConfig[]) | undefined;
 
-export function setRunClusterProvider(fn: () => ClusterConfig | undefined): void {
-  getActiveCluster = fn;
+export function setRunClusterProvider(fn: () => ClusterConfig[]): void {
+  getAllClusters = fn;
 }
 
 export async function handleRunTask(
@@ -54,31 +54,30 @@ export async function handleRunTask(
     }
   }
 
-  // Ask where to run if cluster is available
-  const activeCluster = getActiveCluster?.();
+  // Ask where to run
+  const clusters = getAllClusters?.() ?? [];
   let selectedCluster: ClusterConfig | undefined;
 
-  if (activeCluster) {
-    const target = await vscode.window.showQuickPick(
-      [
-        {
-          label: 'Local',
-          description: 'Run on your machine',
-          value: 'local' as const,
-        },
-        {
-          label: activeCluster.name,
-          description: activeCluster.endpoint,
-          value: 'cluster' as const,
-        },
-      ],
-      { placeHolder: `Where to run ${taskName}?` },
-    );
+  if (clusters.length > 0) {
+    const items = [
+      {
+        label: 'Local',
+        description: 'Run on your machine',
+        cluster: undefined as ClusterConfig | undefined,
+      },
+      ...clusters.map((c) => ({
+        label: c.name,
+        description: c.endpoint,
+        cluster: c as ClusterConfig | undefined,
+      })),
+    ];
+
+    const target = await vscode.window.showQuickPick(items, {
+      placeHolder: `Where to run ${taskName}?`,
+    });
     if (!target) return;
 
-    if (target.value === 'cluster') {
-      selectedCluster = activeCluster;
-    }
+    selectedCluster = target.cluster;
   }
 
   try {

@@ -40,7 +40,7 @@ export async function activate(
 
   // Wire cluster provider to commands
   const getActive = () => clusterTreeProvider.getActive();
-  setRunClusterProvider(getActive);
+  setRunClusterProvider(() => clusterTreeProvider.getClusters());
   setClusterProvider(getActive);
   setBuildClusterProvider(getActive);
   setServeClusterProvider(getActive);
