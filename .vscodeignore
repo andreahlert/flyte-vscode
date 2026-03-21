@@ -19,3 +19,8 @@ examples/**
 **/.venv/**
 **/__pycache__/**
 scripts/record-demo.sh
+assets/**
+demo-video/**
+assets/**/.vscode-test/**
+assets/demo-full.*
+assets/screenshot-*
