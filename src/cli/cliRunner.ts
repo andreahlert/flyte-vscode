@@ -61,7 +61,8 @@ export async function runInTerminal(
   globalArgs: string[] = [],
 ): Promise<vscode.Terminal> {
   const cliPath = await getCliPath();
-  const fullCommand = [cliPath, ...globalArgs, command, ...args].map(shellEscape).join(' ');
+  const cliParts = cliPath.split(' ');
+  const fullCommand = [...cliParts, ...globalArgs, command, ...args].map(shellEscape).join(' ');
 
   const terminal = vscode.window.createTerminal({
     name: name ?? `Flyte: ${command}`,

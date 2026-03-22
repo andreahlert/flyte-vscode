@@ -218,9 +218,9 @@ function extractTasks(
     const paramsNode = funcDef.childForFieldName('parameters');
     const returnTypeNode = funcDef.childForFieldName('return_type');
     const isAsync =
+      funcDef.type === 'async_function_definition' ||
       funcDef.children[0]?.text === 'async' ||
-      funcDef.type === 'function_definition' &&
-        funcDef.text.startsWith('async');
+      funcDef.text.startsWith('async ');
 
     tasks.push({
       functionName: nameNode?.text ?? '',

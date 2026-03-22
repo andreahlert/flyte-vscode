@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { FLYTE_CLASSES } from './flyteApi.js';
+import { FLYTE_CLASSES, FLYTE_DECORATOR_PARAMS } from './flyteApi.js';
+import type { ParamInfo } from './flyteApi.js';
 
 export class FlyteHoverProvider implements vscode.HoverProvider {
   provideHover(
@@ -92,8 +93,7 @@ export class FlyteHoverProvider implements vscode.HoverProvider {
             }
             // Check decorator
             if (/\.task$/.test(before)) {
-              const { FLYTE_DECORATOR_PARAMS } = require('./flyteApi.js');
-              return FLYTE_DECORATOR_PARAMS.find((p: any) => p.name === paramName);
+              return FLYTE_DECORATOR_PARAMS.find((p: ParamInfo) => p.name === paramName);
             }
             return null;
           }
