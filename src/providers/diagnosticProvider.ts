@@ -4,14 +4,7 @@ import { extractFlyteInfo } from '../parser/flyteExtractor.js';
 import { FLYTE_LANGUAGE_ID } from '../constants.js';
 
 const INVALID_APP_PORTS = ['8012', '8022', '8112', '9090', '9091'];
-const APP_NAME_REGEX = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
-const GPU_DEVICES = [
-  'A10', 'A10G', 'A100', 'A100 80G', 'B200', 'H100', 'H200',
-  'L4', 'L40s', 'T4', 'V100', 'RTX PRO 6000', 'GB10',
-  'MI100', 'MI210', 'MI250', 'MI250X', 'MI300A', 'MI300X',
-  'MI325X', 'MI350X', 'MI355X',
-  'Gaudi1', 'Inf1', 'Inf2', 'Trn1', 'Trn1n', 'Trn2', 'Trn2u',
-];
+const APP_NAME_REGEX = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
 
 export class FlyteDiagnosticProvider {
   private collection: vscode.DiagnosticCollection;
@@ -80,26 +73,6 @@ export class FlyteDiagnosticProvider {
 
     // Validate tasks
     for (const task of info.tasks) {
-      // Check GPU accelerator strings in environment
-      const env = info.environments.find(e => e.varName === task.envVarName);
-      if (env) {
-        const gpuParam = env.params['resources'];
-        if (gpuParam) {
-          const gpuMatch = gpuParam.match(/gpu\s*=\s*["']([^"']+)["']/);
-          if (gpuMatch) {
-            const gpuValue = gpuMatch[1];
-            const [device] = gpuValue.split(':');
-            if (!GPU_DEVICES.includes(device)) {
-              diagnostics.push(new vscode.Diagnostic(
-                env.location,
-                `Unknown GPU accelerator "${device}". Valid options: ${GPU_DEVICES.slice(0, 5).join(', ')}, ...`,
-                vscode.DiagnosticSeverity.Warning,
-              ));
-            }
-          }
-        }
-      }
-
       // Empty trigger name
       if (task.decoratorParams['triggers']) {
         const triggerStr = task.decoratorParams['triggers'];

@@ -46,7 +46,7 @@ export async function activate(
 
   // Diagnostics
   const diagnosticProvider = new FlyteDiagnosticProvider();
-  context.subscriptions.push({ dispose: () => diagnosticProvider.dispose() });
+  context.subscriptions.push(diagnosticProvider);
 
   // Providers
   const codeLensProvider = new FlyteCodeLensProvider(clusterTreeProvider);
