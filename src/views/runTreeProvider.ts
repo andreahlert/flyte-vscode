@@ -41,10 +41,22 @@ function findCacheDb(): string | null {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders) return null;
 
+  // Search workspace and parent dirs
   for (const folder of workspaceFolders) {
-    const dbPath = path.join(folder.uri.fsPath, '.flyte', 'local-cache', 'cache.db');
-    if (fs.existsSync(dbPath)) return dbPath;
+    let dir = folder.uri.fsPath;
+    for (let i = 0; i < 5; i++) {
+      const dbPath = path.join(dir, '.flyte', 'local-cache', 'cache.db');
+      if (fs.existsSync(dbPath)) return dbPath;
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
   }
+
+  // Global fallback
+  const homeDb = path.join(process.env.HOME ?? '', '.flyte', 'local-cache', 'cache.db');
+  if (fs.existsSync(homeDb)) return homeDb;
+
   return null;
 }
 
@@ -88,9 +100,14 @@ export class RunTreeProvider
 
   async getChildren(): Promise<RunTreeItem[]> {
     const dbPath = findCacheDb();
-    if (!dbPath) return [];
+    if (!dbPath) {
+      console.log('[Flyte Runs] No cache.db found');
+      return [];
+    }
+    console.log(`[Flyte Runs] Reading from ${dbPath}`);
 
     const runs = queryRuns(dbPath);
+    console.log(`[Flyte Runs] Found ${runs.length} runs`);
     return runs.map((r) => new RunTreeItem(r));
   }
 }
