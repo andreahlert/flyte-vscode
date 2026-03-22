@@ -3,11 +3,12 @@
   "displayName": "Flyte",
   "description": "Flyte V2 development tools: code intelligence, visualization, CLI integration, and monitoring",
   "version": "0.1.0",
-  "publisher": "flyteorg",
+  "publisher": "atoolz",
   "license": "MIT",
+  "icon": "assets/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/flyteorg/flyte-vscode"
+    "url": "https://github.com/andreahlert/flyte-vscode"
   },
   "engines": {
     "vscode": "^1.85.0"

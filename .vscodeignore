@@ -19,8 +19,11 @@ examples/**
 **/.venv/**
 **/__pycache__/**
 scripts/record-demo.sh
-assets/**
-demo-video/**
+assets/**/*.svg
+assets/**/*.gif
+assets/screenshot-*
+assets/frames-*/**
+assets/settings.json
 assets/**/.vscode-test/**
 assets/demo-full.*
-assets/screenshot-*
+demo-video/**
