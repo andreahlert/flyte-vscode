@@ -7,8 +7,6 @@ interface LocalRun {
   runName: string;
   taskName: string;
   status: string;
-  startTime: number | null;
-  endTime: number | null;
 }
 
 export class RunTreeItem extends vscode.TreeItem {
@@ -24,16 +22,11 @@ export class RunTreeItem extends vscode.TreeItem {
 
 function statusIcon(status: string): string {
   switch (status) {
-    case 'running':
-      return 'sync~spin';
-    case 'succeeded':
-      return 'check';
-    case 'failed':
-      return 'error';
-    case 'aborted':
-      return 'stop';
-    default:
-      return 'question';
+    case 'running': return 'sync~spin';
+    case 'succeeded': return 'check';
+    case 'failed': return 'error';
+    case 'aborted': return 'stop';
+    default: return 'question';
   }
 }
 
@@ -41,7 +34,6 @@ function findCacheDb(): string | null {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders) return null;
 
-  // Search workspace and parent dirs
   for (const folder of workspaceFolders) {
     let dir = folder.uri.fsPath;
     for (let i = 0; i < 5; i++) {
@@ -53,7 +45,6 @@ function findCacheDb(): string | null {
     }
   }
 
-  // Global fallback
   const homeDb = path.join(process.env.HOME ?? '', '.flyte', 'local-cache', 'cache.db');
   if (fs.existsSync(homeDb)) return homeDb;
 
@@ -61,24 +52,33 @@ function findCacheDb(): string | null {
 }
 
 function queryRuns(dbPath: string): LocalRun[] {
+  // Use python3 to read SQLite (always available in Flyte environments)
+  const script = `
+import sqlite3, json, sys
+conn = sqlite3.connect(sys.argv[1])
+rows = conn.execute(
+    "SELECT DISTINCT run_name, task_name, status FROM runs WHERE action_name = 'a0' ORDER BY start_time DESC LIMIT 50"
+).fetchall()
+conn.close()
+print(json.dumps([{"run_name": r[0], "task_name": r[1], "status": r[2]} for r in rows]))
+`;
+
   try {
-    const output = execFileSync('sqlite3', [
-      dbPath,
-      '-json',
-      'SELECT DISTINCT run_name, task_name, status, start_time, end_time FROM runs WHERE action_name = "a0" ORDER BY start_time DESC LIMIT 50;',
-    ], { timeout: 5000 }).toString();
+    const output = execFileSync('python3', ['-c', script, dbPath], {
+      timeout: 5000,
+      encoding: 'utf-8',
+    });
 
     if (!output.trim()) return [];
 
-    const rows = JSON.parse(output);
+    const rows = JSON.parse(output.trim());
     return rows.map((r: any) => ({
       runName: r.run_name ?? '',
       taskName: r.task_name ?? '',
       status: r.status ?? 'unknown',
-      startTime: r.start_time ?? null,
-      endTime: r.end_time ?? null,
     }));
-  } catch {
+  } catch (err) {
+    console.error('[Flyte Runs] Query failed:', err);
     return [];
   }
 }
