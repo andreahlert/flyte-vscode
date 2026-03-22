@@ -3,6 +3,7 @@ import { initParser } from './parser/pythonParser.js';
 import { FlyteCodeLensProvider } from './providers/codeLensProvider.js';
 import { FlyteCompletionProvider } from './providers/completionProvider.js';
 import { FlyteHoverProvider } from './providers/hoverProvider.js';
+import { FlyteDiagnosticProvider } from './providers/diagnosticProvider.js';
 import { EnvironmentTreeProvider } from './views/environmentTreeProvider.js';
 import { TaskTreeProvider } from './views/taskTreeProvider.js';
 import { RunTreeProvider } from './views/runTreeProvider.js';
@@ -42,6 +43,10 @@ export async function activate(
   setDeployClusterProvider(getClusters);
   setBuildClusterProvider(getClusters);
   setServeClusterProvider(getClusters);
+
+  // Diagnostics
+  const diagnosticProvider = new FlyteDiagnosticProvider();
+  context.subscriptions.push({ dispose: () => diagnosticProvider.dispose() });
 
   // Providers
   const codeLensProvider = new FlyteCodeLensProvider(clusterTreeProvider);
@@ -113,6 +118,16 @@ export async function activate(
       terminal.sendText('pip install -q "flyte[tui]" 2>/dev/null; flyte start tui');
     }),
   );
+
+  // Diagnostics on open and change
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument((doc) => diagnosticProvider.update(doc)),
+    vscode.workspace.onDidChangeTextDocument((e) => diagnosticProvider.update(e.document)),
+    vscode.workspace.onDidCloseTextDocument((doc) => diagnosticProvider.clear(doc.uri)),
+  );
+
+  // Run diagnostics on already open documents
+  vscode.workspace.textDocuments.forEach((doc) => diagnosticProvider.update(doc));
 
   // Refresh on file save
   context.subscriptions.push(
