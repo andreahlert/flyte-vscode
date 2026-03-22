@@ -2,7 +2,7 @@
   "name": "flyte-vscode",
   "displayName": "Flyte",
   "description": "Flyte V2 development tools: code intelligence, visualization, CLI integration, and monitoring",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "atoolz",
   "license": "MIT",
   "icon": "assets/icon.png",
