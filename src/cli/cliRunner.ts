@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 import { discoverCli } from './cliDiscovery.js';
 import type { ClusterConfig } from '../views/clusterTreeProvider.js';
 
@@ -18,6 +20,16 @@ async function getCliPath(): Promise<string> {
 
 export function resetCliCache(): void {
   cachedCliPath = null;
+}
+
+function ensureLocalPersistence(filePath: string): void {
+  const dir = path.dirname(filePath);
+  const configDir = path.join(dir, '.flyte');
+  const configFile = path.join(configDir, 'config.yaml');
+  if (!fs.existsSync(configFile)) {
+    fs.mkdirSync(configDir, { recursive: true });
+    fs.writeFileSync(configFile, 'local:\n  persistence: true\n');
+  }
 }
 
 function shellEscape(arg: string): string {
@@ -81,6 +93,7 @@ export async function runTask(
       clusterArgs(cluster),
     );
   }
+  ensureLocalPersistence(filePath);
   return runInTerminal(
     'run',
     ['--local', '--tui', filePath, taskName, ...extraArgs],

@@ -1,0 +1,4 @@
+image:
+  builder: local
+local:
+  persistence: true
