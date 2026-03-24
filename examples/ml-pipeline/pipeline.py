@@ -32,7 +32,6 @@ data_env = flyte.TaskEnvironment(
     cache="auto",
     env_vars={"PYTHONUNBUFFERED": "1"},
     interruptible=True,
-    queue="default",
 )
 
 # GPU environment for model training
