@@ -79,8 +79,13 @@ export class ClusterTreeProvider
     });
     if (!project) return;
 
+    const domain = await vscode.window.showQuickPick(
+      ['development', 'staging', 'production'],
+      { placeHolder: 'Domain' },
+    );
+    if (!domain) return;
+
     const name = org || 'union';
-    const domain = 'development';
     const fullEndpoint = endpoint.startsWith('dns:///') ? endpoint : `dns:///${endpoint}`;
 
     await this.saveCluster({
