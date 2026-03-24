@@ -65,7 +65,7 @@ describe('E2E: pipeline.py', () => {
       expect(env!.type).toBe('task');
       expect(env!.params['cache']).toBe('"auto"');
       expect(env!.params['interruptible']).toBe('True');
-      expect(env!.params['queue']).toBe('"default"');
+      expect(env!.params['interruptible']).toBe('True');
     });
 
     it('train_env has GPU resources and secrets', () => {

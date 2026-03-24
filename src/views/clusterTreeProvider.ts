@@ -27,7 +27,6 @@ export class ClusterTreeItem extends vscode.TreeItem {
     const statusLabel = isLocal
       ? (cluster.status === 'paused' ? ' (paused)' : ' (running)')
       : '';
-    const projectLabel = cluster.project ? ` / ${cluster.project}` : '';
     this.description = `${cluster.project ?? cluster.endpoint}${statusLabel}`;
     this.tooltip = [
       cluster.name,
@@ -101,16 +100,15 @@ export class ClusterTreeProvider
     const name = org || 'union';
     const fullEndpoint = endpoint.startsWith('dns:///') ? endpoint : `dns:///${endpoint}`;
 
-    await this.saveCluster({
-      name, endpoint: fullEndpoint, insecure: false, type: 'union',
-      project, domain,
-    });
-
-    // Create config and authenticate
     if (!isValidIdentifier(fullEndpoint) || !isValidIdentifier(project) || !isValidIdentifier(domain)) {
       vscode.window.showErrorMessage('Invalid characters in endpoint, project, or domain.');
       return;
     }
+
+    await this.saveCluster({
+      name, endpoint: fullEndpoint, insecure: false, type: 'union',
+      project, domain,
+    });
     const terminal = vscode.window.createTerminal('Union: Setup');
     terminal.show();
     terminal.sendText(`flyte create config --endpoint ${fullEndpoint} --project ${project} --domain ${domain} --local-persistence --force`);
@@ -226,15 +224,15 @@ export class ClusterTreeProvider
 
     const insecure = insecureChoice.startsWith('Yes');
 
-    await this.saveCluster({
-      name, endpoint, insecure, type: 'self-hosted',
-      project, domain,
-    });
-
     if (!isValidIdentifier(endpoint) || !isValidIdentifier(project) || !isValidIdentifier(domain)) {
       vscode.window.showErrorMessage('Invalid characters in endpoint, project, or domain.');
       return;
     }
+
+    await this.saveCluster({
+      name, endpoint, insecure, type: 'self-hosted',
+      project, domain,
+    });
     const terminal = vscode.window.createTerminal('Flyte: Setup');
     terminal.show();
     const insecureFlag = insecure ? ' --insecure' : '';

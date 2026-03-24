@@ -35,7 +35,7 @@ gpu_env = flyte.TaskEnvironment(
     name="gpu-training",
     image="auto",
     resources=flyte.Resources(cpu=4, memory="16Gi", gpu="A100:1"),
-    secrets=flyte.SecretRequest(group="ml", keys=["wandb_key"]),
+    secrets=flyte.Secret("wandb_key", group="ml"),
 )
 
 

@@ -155,5 +155,9 @@ export async function handleShowGraph(uri?: vscode.Uri): Promise<void> {
     name: `Graph: ${fileName}`,
   });
   terminal.show();
-  terminal.sendText(`cat "${tmpFile}" && rm "${tmpFile}"`);
+  if (process.platform === 'win32') {
+    terminal.sendText(`type "${tmpFile}" & del "${tmpFile}"`);
+  } else {
+    terminal.sendText(`cat "${tmpFile}" && rm "${tmpFile}"`);
+  }
 }

@@ -64,8 +64,11 @@ conn.close()
 print(json.dumps([{"run_name": r[0], "task_name": r[1], "status": r[2]} for r in rows]))
 `;
 
+  const pythonPath = vscode.workspace.getConfiguration().get<string>('flyte.pythonPath')
+    || (process.platform === 'win32' ? 'python' : 'python3');
+
   return new Promise((resolve) => {
-    execFile('python3', ['-c', script, dbPath], {
+    execFile(pythonPath, ['-c', script, dbPath], {
       timeout: 5000,
       encoding: 'utf-8',
     }, (err, stdout) => {
