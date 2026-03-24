@@ -27,8 +27,17 @@ export class ClusterTreeItem extends vscode.TreeItem {
     const statusLabel = isLocal
       ? (cluster.status === 'paused' ? ' (paused)' : ' (running)')
       : '';
-    this.description = `${cluster.endpoint}${statusLabel}`;
-    this.tooltip = `${cluster.name}\n${cluster.endpoint}\nType: ${cluster.type === 'union' ? 'Union.ai' : 'Self-Hosted'}${statusLabel}${cluster.insecure ? '\nInsecure' : ''}`;
+    const projectLabel = cluster.project ? ` / ${cluster.project}` : '';
+    this.description = `${cluster.project ?? cluster.endpoint}${statusLabel}`;
+    this.tooltip = [
+      cluster.name,
+      cluster.endpoint,
+      cluster.project ? `Project: ${cluster.project}` : '',
+      cluster.domain ? `Domain: ${cluster.domain}` : '',
+      `Type: ${cluster.type === 'union' ? 'Union.ai' : 'Self-Hosted'}`,
+      statusLabel ? `Status:${statusLabel}` : '',
+      cluster.insecure ? 'Insecure' : '',
+    ].filter(Boolean).join('\n');
     const iconFile = cluster.type === 'union' ? 'union-icon.svg' : 'flyte-icon-purple.svg';
     this.iconPath = {
       light: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
