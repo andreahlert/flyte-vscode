@@ -61,42 +61,37 @@ export class ClusterTreeProvider
 
   async connectUnion(): Promise<void> {
     const endpoint = await vscode.window.showInputBox({
-      prompt: 'Union.ai endpoint (from your Union dashboard)',
-      placeHolder: 'dns:///your-org.unionai.cloud',
+      prompt: 'Union.ai endpoint',
+      placeHolder: 'dns:///tryv2.hosted.unionai.cloud',
       ignoreFocusOut: true,
     });
     if (!endpoint) return;
 
+    // Extract org from endpoint for the name (e.g., tryv2 from tryv2.hosted.unionai.cloud)
+    const cleanEndpoint = endpoint.replace('dns:///', '');
+    const org = cleanEndpoint.split('.')[0];
+
+    // Ask project with sensible default
     const project = await vscode.window.showInputBox({
-      prompt: 'Project name',
-      placeHolder: 'my-project',
+      prompt: 'Project name (from your Union dashboard)',
+      value: org,
       ignoreFocusOut: true,
     });
     if (!project) return;
 
-    const domain = await vscode.window.showInputBox({
-      prompt: 'Domain',
-      value: 'development',
-      ignoreFocusOut: true,
-    });
-    if (!domain) return;
-
-    const name = await vscode.window.showInputBox({
-      prompt: 'Name for this connection',
-      value: 'union',
-      ignoreFocusOut: true,
-    });
-    if (!name) return;
+    const name = org || 'union';
+    const domain = 'development';
+    const fullEndpoint = endpoint.startsWith('dns:///') ? endpoint : `dns:///${endpoint}`;
 
     await this.saveCluster({
-      name, endpoint, insecure: false, type: 'union',
+      name, endpoint: fullEndpoint, insecure: false, type: 'union',
       project, domain,
     });
 
     // Create config and authenticate
     const terminal = vscode.window.createTerminal('Union: Setup');
     terminal.show();
-    terminal.sendText(`flyte create config --endpoint ${endpoint} --project ${project} --domain ${domain} --local-persistence --force`);
+    terminal.sendText(`flyte create config --endpoint ${fullEndpoint} --project ${project} --domain ${domain} --local-persistence --force`);
   }
 
   async connectSelfHosted(): Promise<void> {
