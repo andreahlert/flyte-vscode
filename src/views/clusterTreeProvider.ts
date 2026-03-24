@@ -5,6 +5,8 @@ export interface ClusterConfig {
   endpoint: string;
   insecure: boolean;
   type: 'union' | 'self-hosted';
+  project?: string;
+  domain?: string;
   registry?: string;
   status?: 'running' | 'paused';
 }
@@ -65,6 +67,20 @@ export class ClusterTreeProvider
     });
     if (!endpoint) return;
 
+    const project = await vscode.window.showInputBox({
+      prompt: 'Project name',
+      placeHolder: 'my-project',
+      ignoreFocusOut: true,
+    });
+    if (!project) return;
+
+    const domain = await vscode.window.showInputBox({
+      prompt: 'Domain',
+      value: 'development',
+      ignoreFocusOut: true,
+    });
+    if (!domain) return;
+
     const name = await vscode.window.showInputBox({
       prompt: 'Name for this connection',
       value: 'union',
@@ -72,8 +88,15 @@ export class ClusterTreeProvider
     });
     if (!name) return;
 
-    await this.saveCluster({ name, endpoint, insecure: false, type: 'union' });
+    await this.saveCluster({
+      name, endpoint, insecure: false, type: 'union',
+      project, domain,
+    });
 
+    // Offer to set as default config
+    await this.offerSetDefaultConfig({ endpoint, project, domain, insecure: false, builder: 'remote' });
+
+    // Login
     const terminal = vscode.window.createTerminal('Union: Login');
     terminal.show();
     terminal.sendText(`flyte init --endpoint ${endpoint}`);
@@ -145,6 +168,8 @@ export class ClusterTreeProvider
       endpoint: 'dns:///localhost:8090',
       insecure: true,
       type: 'self-hosted',
+      project: 'flytesnacks',
+      domain: 'development',
       registry: 'localhost:5050',
       status: 'running',
     });
@@ -157,6 +182,20 @@ export class ClusterTreeProvider
       ignoreFocusOut: true,
     });
     if (!endpoint) return;
+
+    const project = await vscode.window.showInputBox({
+      prompt: 'Project name',
+      placeHolder: 'my-project',
+      ignoreFocusOut: true,
+    });
+    if (!project) return;
+
+    const domain = await vscode.window.showInputBox({
+      prompt: 'Domain',
+      value: 'development',
+      ignoreFocusOut: true,
+    });
+    if (!domain) return;
 
     const name = await vscode.window.showInputBox({
       prompt: 'Name for this cluster',
@@ -171,16 +210,18 @@ export class ClusterTreeProvider
     );
     if (!insecureChoice) return;
 
+    const insecure = insecureChoice.startsWith('Yes');
+
     await this.saveCluster({
-      name,
-      endpoint,
-      insecure: insecureChoice.startsWith('Yes'),
-      type: 'self-hosted',
+      name, endpoint, insecure, type: 'self-hosted',
+      project, domain,
     });
+
+    await this.offerSetDefaultConfig({ endpoint, project, domain, insecure, builder: 'local' });
 
     const terminal = vscode.window.createTerminal('Flyte: Init');
     terminal.show();
-    const insecureFlag = insecureChoice.startsWith('Yes') ? ' --insecure' : '';
+    const insecureFlag = insecure ? ' --insecure' : '';
     terminal.sendText(`flyte init --endpoint ${endpoint}${insecureFlag}`);
   }
 
@@ -322,6 +363,55 @@ export class ClusterTreeProvider
       await this.saveClusters(clusters);
     }
     this.refresh();
+  }
+
+  private async offerSetDefaultConfig(opts: {
+    endpoint: string;
+    project: string;
+    domain: string;
+    insecure: boolean;
+    builder: string;
+  }): Promise<void> {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) return;
+
+    const choice = await vscode.window.showInformationMessage(
+      'Set this cluster as the default for CLI commands in this workspace?',
+      'Yes', 'No',
+    );
+    if (choice !== 'Yes') return;
+
+    const fs = await import('fs');
+    const path = await import('path');
+    const configDir = path.join(workspaceFolders[0].uri.fsPath, '.flyte');
+    const configFile = path.join(configDir, 'config.yaml');
+
+    fs.mkdirSync(configDir, { recursive: true });
+
+    // Extract org from endpoint (e.g., tryv2 from tryv2.hosted.unionai.cloud)
+    const org = opts.endpoint.replace('dns:///', '').split('.')[0];
+
+    const lines = [
+      `admin:`,
+      `  endpoint: ${opts.endpoint.startsWith('dns:///') ? opts.endpoint : 'dns:///' + opts.endpoint}`,
+    ];
+    if (opts.insecure) {
+      lines.push(`  insecure: true`);
+    }
+    lines.push(
+      `image:`,
+      `  builder: ${opts.builder}`,
+      `task:`,
+      `  domain: ${opts.domain}`,
+      `  org: ${org}`,
+      `  project: ${opts.project}`,
+      `local:`,
+      `  persistence: true`,
+      ``,
+    );
+
+    fs.writeFileSync(configFile, lines.join('\n'));
+    vscode.window.showInformationMessage(`Config written to ${configFile}`);
   }
 
   private async pickCluster(
