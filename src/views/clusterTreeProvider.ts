@@ -256,11 +256,18 @@ export class ClusterTreeProvider
   }
 
   async removeCluster(item?: ClusterTreeItem): Promise<void> {
-    const cluster = item?.cluster;
-    const name = cluster?.name ??
-      (await this.pickCluster('Select cluster to remove'));
+    // Get cluster name from the tree item or ask user
+    let name: string | undefined;
+    if (item && item.cluster) {
+      name = item.cluster.name;
+    } else if (item && (item as any).label) {
+      name = String((item as any).label);
+    } else {
+      name = await this.pickCluster('Select cluster to remove');
+    }
     if (!name) return;
 
+    const cluster = this.getClusters().find(c => c.name === name);
     const isLocal = cluster?.type === 'self-hosted' && cluster?.registry;
 
     const confirmMsg = isLocal
