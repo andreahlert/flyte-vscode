@@ -21,19 +21,6 @@ import flyte
 # Environments
 # =============================================================================
 
-# CPU environment for data processing tasks
-data_env = flyte.TaskEnvironment(
-    name="data-processing",
-    image=(
-        flyte.Image.from_debian_base()
-        .with_pip_packages("pandas", "pyarrow", "requests", "scikit-learn")
-    ),
-    resources=flyte.Resources(cpu=2, memory="4Gi", disk="20Gi"),
-    cache="auto",
-    env_vars={"PYTHONUNBUFFERED": "1"},
-    interruptible=True,
-)
-
 # GPU environment for model training
 train_env = flyte.TaskEnvironment(
     name="gpu-training",
@@ -85,6 +72,20 @@ distributed_env = flyte.TaskEnvironment(
         "NCCL_DEBUG": "INFO",
         "TOKENIZERS_PARALLELISM": "false",
     },
+)
+
+# CPU environment for data processing tasks (depends on all others for pipeline orchestration)
+data_env = flyte.TaskEnvironment(
+    name="data-processing",
+    image=(
+        flyte.Image.from_debian_base()
+        .with_pip_packages("pandas", "pyarrow", "requests", "scikit-learn")
+    ),
+    resources=flyte.Resources(cpu=2, memory="4Gi", disk="20Gi"),
+    cache="auto",
+    env_vars={"PYTHONUNBUFFERED": "1"},
+    interruptible=True,
+    depends_on=[train_env, eval_env, distributed_env],
 )
 
 
