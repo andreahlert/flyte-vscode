@@ -261,17 +261,21 @@ export class ClusterTreeProvider
       (await this.pickCluster('Select cluster to remove'));
     if (!name) return;
 
-    const isLocal = cluster?.name === 'local' && cluster?.registry === 'localhost:5050';
+    const isLocal = cluster?.type === 'self-hosted' && cluster?.registry;
+
+    const confirmMsg = isLocal
+      ? 'This will destroy the local Kubernetes cluster and stop all services.'
+      : `Remove cluster "${name}"?`;
+
+    const confirm = await vscode.window.showWarningMessage(
+      confirmMsg,
+      { modal: true },
+      isLocal ? 'Destroy Cluster' : 'Remove',
+      'Cancel',
+    );
+    if (!confirm || confirm === 'Cancel') return;
 
     if (isLocal) {
-      const confirm = await vscode.window.showWarningMessage(
-        'This will destroy the local Kubernetes cluster and stop all services.',
-        { modal: true },
-        'Destroy Cluster',
-        'Cancel',
-      );
-      if (confirm !== 'Destroy Cluster') return;
-
       const scriptPath = vscode.Uri.joinPath(
         vscode.Uri.file(this.context.extensionPath),
         'scripts',
@@ -288,7 +292,6 @@ export class ClusterTreeProvider
 
     const clusters = this.getClusters().filter((c) => c.name !== name);
     await this.saveClusters(clusters);
-
     this.refresh();
   }
 
