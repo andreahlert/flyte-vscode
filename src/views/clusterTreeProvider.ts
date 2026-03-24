@@ -62,7 +62,7 @@ export class ClusterTreeProvider
   async connectUnion(): Promise<void> {
     const endpoint = await vscode.window.showInputBox({
       prompt: 'Union.ai endpoint',
-      placeHolder: 'dns:///tryv2.hosted.unionai.cloud',
+      placeHolder: 'tryv2.hosted.unionai.cloud',
       ignoreFocusOut: true,
     });
     if (!endpoint) return;
