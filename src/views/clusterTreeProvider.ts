@@ -11,6 +11,10 @@ export interface ClusterConfig {
   status?: 'running' | 'paused';
 }
 
+function isValidIdentifier(s: string): boolean {
+  return /^[a-zA-Z0-9._:/-]+$/.test(s);
+}
+
 const STORAGE_KEY = 'flyte.clusters';
 
 export class ClusterTreeItem extends vscode.TreeItem {
@@ -94,6 +98,10 @@ export class ClusterTreeProvider
     });
 
     // Create config and authenticate
+    if (!isValidIdentifier(fullEndpoint) || !isValidIdentifier(project) || !isValidIdentifier(domain)) {
+      vscode.window.showErrorMessage('Invalid characters in endpoint, project, or domain.');
+      return;
+    }
     const terminal = vscode.window.createTerminal('Union: Setup');
     terminal.show();
     terminal.sendText(`flyte create config --endpoint ${fullEndpoint} --project ${project} --domain ${domain} --local-persistence --force`);
@@ -214,6 +222,10 @@ export class ClusterTreeProvider
       project, domain,
     });
 
+    if (!isValidIdentifier(endpoint) || !isValidIdentifier(project) || !isValidIdentifier(domain)) {
+      vscode.window.showErrorMessage('Invalid characters in endpoint, project, or domain.');
+      return;
+    }
     const terminal = vscode.window.createTerminal('Flyte: Setup');
     terminal.show();
     const insecureFlag = insecure ? ' --insecure' : '';
@@ -368,55 +380,6 @@ export class ClusterTreeProvider
       await this.saveClusters(clusters);
     }
     this.refresh();
-  }
-
-  private async offerSetDefaultConfig(opts: {
-    endpoint: string;
-    project: string;
-    domain: string;
-    insecure: boolean;
-    builder: string;
-  }): Promise<void> {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) return;
-
-    const choice = await vscode.window.showInformationMessage(
-      'Set this cluster as the default for CLI commands in this workspace?',
-      'Yes', 'No',
-    );
-    if (choice !== 'Yes') return;
-
-    const fs = await import('fs');
-    const path = await import('path');
-    const configDir = path.join(workspaceFolders[0].uri.fsPath, '.flyte');
-    const configFile = path.join(configDir, 'config.yaml');
-
-    fs.mkdirSync(configDir, { recursive: true });
-
-    // Extract org from endpoint (e.g., tryv2 from tryv2.hosted.unionai.cloud)
-    const org = opts.endpoint.replace('dns:///', '').split('.')[0];
-
-    const lines = [
-      `admin:`,
-      `  endpoint: ${opts.endpoint.startsWith('dns:///') ? opts.endpoint : 'dns:///' + opts.endpoint}`,
-    ];
-    if (opts.insecure) {
-      lines.push(`  insecure: true`);
-    }
-    lines.push(
-      `image:`,
-      `  builder: ${opts.builder}`,
-      `task:`,
-      `  domain: ${opts.domain}`,
-      `  org: ${org}`,
-      `  project: ${opts.project}`,
-      `local:`,
-      `  persistence: true`,
-      ``,
-    );
-
-    fs.writeFileSync(configFile, lines.join('\n'));
-    vscode.window.showInformationMessage(`Config written to ${configFile}`);
   }
 
   private async pickCluster(

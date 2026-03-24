@@ -4,7 +4,7 @@ import { extractFlyteInfo } from '../parser/flyteExtractor.js';
 import { FLYTE_LANGUAGE_ID } from '../constants.js';
 
 const INVALID_APP_PORTS = ['8012', '8022', '8112', '9090', '9091'];
-const APP_NAME_REGEX = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
+const APP_NAME_REGEX = /^[a-z0-9]([-_a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-_a-z0-9]*[a-z0-9])?)*$/;
 
 export class FlyteDiagnosticProvider {
   private collection: vscode.DiagnosticCollection;

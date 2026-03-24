@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { parseSource } from '../parser/pythonParser.js';
 import { extractFlyteInfo } from '../parser/flyteExtractor.js';
-import { buildGraph } from '../parser/graphBuilder.js';
 import type { ParseResult } from '../parser/types.js';
 
 const ENV_COLORS: Record<string, string> = {
@@ -142,13 +142,12 @@ export async function handleShowGraph(uri?: vscode.Uri): Promise<void> {
     return;
   }
 
-  const fileName = fileUri.fsPath.split('/').pop() ?? '';
+  const fileName = path.basename(fileUri.fsPath);
   const output = renderAsciiGraph(info, fileName);
 
   // Write to temp file and cat it (preserves ANSI colors)
   const fs = await import('fs');
   const os = await import('os');
-  const path = await import('path');
   const tmpFile = path.join(os.tmpdir(), `flyte-graph-${Date.now()}.txt`);
   fs.writeFileSync(tmpFile, output);
 

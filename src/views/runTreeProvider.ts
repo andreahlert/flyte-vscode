@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { execFileSync } from 'child_process';
+import * as os from 'os';
+import { execFile } from 'child_process';
 
 interface LocalRun {
   runName: string;
@@ -45,13 +46,13 @@ function findCacheDb(): string | null {
     }
   }
 
-  const homeDb = path.join(process.env.HOME ?? '', '.flyte', 'local-cache', 'cache.db');
+  const homeDb = path.join(os.homedir(), '.flyte', 'local-cache', 'cache.db');
   if (fs.existsSync(homeDb)) return homeDb;
 
   return null;
 }
 
-function queryRuns(dbPath: string): LocalRun[] {
+function queryRuns(dbPath: string): Promise<LocalRun[]> {
   // Use python3 to read SQLite (always available in Flyte environments)
   const script = `
 import sqlite3, json, sys
@@ -63,24 +64,35 @@ conn.close()
 print(json.dumps([{"run_name": r[0], "task_name": r[1], "status": r[2]} for r in rows]))
 `;
 
-  try {
-    const output = execFileSync('python3', ['-c', script, dbPath], {
+  return new Promise((resolve) => {
+    execFile('python3', ['-c', script, dbPath], {
       timeout: 5000,
       encoding: 'utf-8',
+    }, (err, stdout) => {
+      if (err) {
+        console.error('[Flyte Runs] Query failed:', err);
+        resolve([]);
+        return;
+      }
+
+      if (!stdout.trim()) {
+        resolve([]);
+        return;
+      }
+
+      try {
+        const rows = JSON.parse(stdout.trim());
+        resolve(rows.map((r: any) => ({
+          runName: r.run_name ?? '',
+          taskName: r.task_name ?? '',
+          status: r.status ?? 'unknown',
+        })));
+      } catch (parseErr) {
+        console.error('[Flyte Runs] Parse failed:', parseErr);
+        resolve([]);
+      }
     });
-
-    if (!output.trim()) return [];
-
-    const rows = JSON.parse(output.trim());
-    return rows.map((r: any) => ({
-      runName: r.run_name ?? '',
-      taskName: r.task_name ?? '',
-      status: r.status ?? 'unknown',
-    }));
-  } catch (err) {
-    console.error('[Flyte Runs] Query failed:', err);
-    return [];
-  }
+  });
 }
 
 export class RunTreeProvider
@@ -106,7 +118,7 @@ export class RunTreeProvider
     }
     console.log(`[Flyte Runs] Reading from ${dbPath}`);
 
-    const runs = queryRuns(dbPath);
+    const runs = await queryRuns(dbPath);
     console.log(`[Flyte Runs] Found ${runs.length} runs`);
     return runs.map((r) => new RunTreeItem(r));
   }

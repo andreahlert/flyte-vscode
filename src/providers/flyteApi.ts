@@ -107,6 +107,7 @@ const TRIGGER: ClassInfo = {
     { name: 'queue', type: 'str', default: 'None', doc: 'Queue name', required: false },
     { name: 'labels', type: 'Mapping[str, str]', default: 'None', doc: 'Labels to attach to triggered runs', required: false },
     { name: 'annotations', type: 'Mapping[str, str]', default: 'None', doc: 'Annotations to attach to triggered runs', required: false },
+    { name: 'interruptible', type: 'bool', default: 'None', doc: 'Allow scheduling on spot/preemptible instances', required: false },
   ],
 };
 

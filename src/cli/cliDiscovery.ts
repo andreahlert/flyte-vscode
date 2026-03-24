@@ -15,7 +15,8 @@ function fileExists(p: string): boolean {
 
 function findInPath(name: string): Promise<string | null> {
   return new Promise((resolve) => {
-    execFile('which', [name], (err, stdout) => {
+    const cmd = process.platform === 'win32' ? 'where' : 'which';
+    execFile(cmd, [name], (err, stdout) => {
       if (err || !stdout.trim()) {
         resolve(null);
       } else {
@@ -38,7 +39,9 @@ export async function discoverCli(): Promise<string | null> {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (workspaceFolders) {
     for (const folder of workspaceFolders) {
-      const venvPath = path.join(folder.uri.fsPath, '.venv', 'bin', 'flyte');
+      const binDir = process.platform === 'win32' ? 'Scripts' : 'bin';
+      const exe = process.platform === 'win32' ? 'flyte.exe' : 'flyte';
+      const venvPath = path.join(folder.uri.fsPath, '.venv', binDir, exe);
       if (fileExists(venvPath)) {
         return venvPath;
       }

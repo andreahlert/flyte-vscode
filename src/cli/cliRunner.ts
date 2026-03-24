@@ -61,7 +61,9 @@ export async function runInTerminal(
   globalArgs: string[] = [],
 ): Promise<vscode.Terminal> {
   const cliPath = await getCliPath();
-  const cliParts = cliPath.split(' ');
+  const cliParts = cliPath.includes(' ') && !cliPath.startsWith('/') && !cliPath.startsWith('C:')
+    ? cliPath.split(' ')
+    : [cliPath];
   const fullCommand = [...cliParts, ...globalArgs, command, ...args].map(shellEscape).join(' ');
 
   const terminal = vscode.window.createTerminal({

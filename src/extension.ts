@@ -15,6 +15,7 @@ import { handleBuild, setBuildClusterProvider } from './commands/buildCommand.js
 import { handleServe, setServeClusterProvider } from './commands/serveCommand.js';
 import { handleAbort } from './commands/abortCommand.js';
 import { handleShowGraph } from './commands/graphCommand.js';
+import { resetCliCache } from './cli/cliRunner.js';
 import { COMMANDS, VIEWS, FLYTE_LANGUAGE_ID } from './constants.js';
 
 export async function activate(
@@ -115,7 +116,7 @@ export async function activate(
     vscode.commands.registerCommand(COMMANDS.OPEN_TUI, () => {
       const terminal = vscode.window.createTerminal('Flyte TUI');
       terminal.show();
-      terminal.sendText('pip install -q "flyte[tui]" 2>/dev/null; flyte start tui');
+      terminal.sendText('python3 -m pip install -q "flyte[tui]" && flyte start tui');
     }),
   );
 
@@ -128,6 +129,15 @@ export async function activate(
 
   // Run diagnostics on already open documents
   vscode.workspace.textDocuments.forEach((doc) => diagnosticProvider.update(doc));
+
+  // Reset CLI cache when flyte settings change
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('flyte')) {
+        resetCliCache();
+      }
+    }),
+  );
 
   // Refresh on file save
   context.subscriptions.push(
