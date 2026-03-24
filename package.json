@@ -211,7 +211,7 @@
     "viewsWelcome": [
       {
         "view": "flyte.clusters",
-        "contents": "No clusters configured.\n\nUse the buttons above to connect:\n\n[$(cloud) Union.ai](command:flyte.connectUnion)\n[$(server) Self-Hosted](command:flyte.connectSelfHosted)"
+        "contents": "No clusters configured.\n\nUse the buttons above to connect to Union.ai or a self-hosted cluster."
       }
     ],
     "configuration": {
