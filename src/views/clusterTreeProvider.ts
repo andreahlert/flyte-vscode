@@ -93,13 +93,10 @@ export class ClusterTreeProvider
       project, domain,
     });
 
-    // Offer to set as default config
-    await this.offerSetDefaultConfig({ endpoint, project, domain, insecure: false, builder: 'remote' });
-
-    // Login
-    const terminal = vscode.window.createTerminal('Union: Login');
+    // Create config and authenticate
+    const terminal = vscode.window.createTerminal('Union: Setup');
     terminal.show();
-    terminal.sendText(`flyte init --endpoint ${endpoint}`);
+    terminal.sendText(`flyte create config --endpoint ${endpoint} --project ${project} --domain ${domain} --local-persistence --force`);
   }
 
   async connectSelfHosted(): Promise<void> {
@@ -217,12 +214,10 @@ export class ClusterTreeProvider
       project, domain,
     });
 
-    await this.offerSetDefaultConfig({ endpoint, project, domain, insecure, builder: 'local' });
-
-    const terminal = vscode.window.createTerminal('Flyte: Init');
+    const terminal = vscode.window.createTerminal('Flyte: Setup');
     terminal.show();
     const insecureFlag = insecure ? ' --insecure' : '';
-    terminal.sendText(`flyte init --endpoint ${endpoint}${insecureFlag}`);
+    terminal.sendText(`flyte create config --endpoint ${endpoint} --project ${project} --domain ${domain}${insecureFlag} --local-persistence --force`);
   }
 
   async addCluster(): Promise<void> {
