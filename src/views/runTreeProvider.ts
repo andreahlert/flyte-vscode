@@ -20,8 +20,10 @@ export class RunTreeItem extends vscode.TreeItem {
     this.tooltip = `Run: ${run.runName}\nTask: ${run.taskName}\nStatus: ${run.status}\nSource: ${sourceLabel}`;
     this.contextValue = 'flyteRun';
 
+    const prefix = run.source === 'remote' ? 'union' : 'flyte';
+    const statusName = ['succeeded', 'failed', 'running'].includes(run.status) ? run.status : 'unknown';
+    const iconFile = `${prefix}-${statusName}.svg`;
     if (extensionPath) {
-      const iconFile = run.source === 'remote' ? 'union-icon.svg' : 'flyte-icon-purple.svg';
       this.iconPath = {
         light: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
         dark: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
