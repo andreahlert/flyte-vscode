@@ -148,11 +148,13 @@ export async function activate(
 
       const terminal = vscode.window.createTerminal('Flyte: Create Secret');
       terminal.show();
-      const args = [`flyte create secret "${name}" --value "${value}"`];
-      if (cluster.endpoint) args.push(`--endpoint ${cluster.endpoint}`);
-      if (cluster.project) args.push(`--project ${cluster.project}`);
-      if (cluster.domain) args.push(`--domain ${cluster.domain}`);
-      terminal.sendText(args.join(' '));
+      const globalArgs: string[] = ['flyte'];
+      if (cluster.endpoint) globalArgs.push('--endpoint', cluster.endpoint);
+      if (cluster.insecure) globalArgs.push('--insecure');
+      const cmdArgs = ['create', 'secret', `"${name}"`, '--value', `"${value}"`];
+      if (cluster.project) cmdArgs.push('--project', cluster.project);
+      if (cluster.domain) cmdArgs.push('--domain', cluster.domain);
+      terminal.sendText([...globalArgs, ...cmdArgs].join(' '));
       setTimeout(() => secretTreeProvider.refresh(), 3000);
     }),
     vscode.commands.registerCommand(COMMANDS.REFRESH_SECRETS, () => {
