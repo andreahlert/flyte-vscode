@@ -11,7 +11,9 @@ export class TaskTreeItem extends vscode.TreeItem {
     this.iconPath = new vscode.ThemeIcon(
       task.isAsync ? 'symbol-event' : 'symbol-function',
     );
-    this.contextValue = 'flyteTask';
+    const allParamsHaveDefaults = task.parameters.length === 0 ||
+      task.parameters.every((p) => p.defaultValue !== undefined);
+    this.contextValue = allParamsHaveDefaults ? 'flyteTaskRunnable' : 'flyteTask';
     this.command = {
       command: 'vscode.open',
       title: 'Go to Task',

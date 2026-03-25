@@ -216,12 +216,12 @@
       "view/item/context": [
         {
           "command": "flyte.runTask",
-          "when": "viewItem == flyteTask",
+          "when": "viewItem == flyteTaskRunnable",
           "group": "inline"
         },
         {
           "command": "flyte.deploy",
-          "when": "viewItem == flyteTask",
+          "when": "viewItem =~ /^flyteTask/",
           "group": "inline"
         },
         {
