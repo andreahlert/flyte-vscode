@@ -196,6 +196,36 @@ export async function activate(
     vscode.commands.registerCommand(COMMANDS.REFRESH_SECRETS, () => {
       secretTreeProvider.refresh();
     }),
+    vscode.commands.registerCommand(COMMANDS.ACTIVATE_TRIGGER, async (item: any) => {
+      if (!item?.triggerName || !item?.taskName || !item?.cluster) return;
+      const terminal = vscode.window.createTerminal('Flyte: Activate Trigger');
+      terminal.show();
+      const globalArgs: string[] = ['flyte'];
+      if (item.cluster.endpoint) globalArgs.push('--endpoint', item.cluster.endpoint);
+      if (item.cluster.insecure) globalArgs.push('--insecure');
+      const cmdArgs = ['update', 'trigger', item.triggerName, item.taskName, '--activate'];
+      if (item.cluster.project) cmdArgs.push('--project', item.cluster.project);
+      if (item.cluster.domain) cmdArgs.push('--domain', item.cluster.domain);
+      terminal.sendText([...globalArgs, ...cmdArgs].join(' '));
+      setTimeout(() => triggerTreeProvider.refresh(), 3000);
+    }),
+    vscode.commands.registerCommand(COMMANDS.DEACTIVATE_TRIGGER, async (item: any) => {
+      if (!item?.triggerName || !item?.taskName || !item?.cluster) return;
+      const confirm = await vscode.window.showWarningMessage(
+        `Deactivate trigger "${item.triggerName}"?`, { modal: true }, 'Deactivate', 'Cancel',
+      );
+      if (confirm !== 'Deactivate') return;
+      const terminal = vscode.window.createTerminal('Flyte: Deactivate Trigger');
+      terminal.show();
+      const globalArgs: string[] = ['flyte'];
+      if (item.cluster.endpoint) globalArgs.push('--endpoint', item.cluster.endpoint);
+      if (item.cluster.insecure) globalArgs.push('--insecure');
+      const cmdArgs = ['update', 'trigger', item.triggerName, item.taskName, '--deactivate'];
+      if (item.cluster.project) cmdArgs.push('--project', item.cluster.project);
+      if (item.cluster.domain) cmdArgs.push('--domain', item.cluster.domain);
+      terminal.sendText([...globalArgs, ...cmdArgs].join(' '));
+      setTimeout(() => triggerTreeProvider.refresh(), 3000);
+    }),
     vscode.commands.registerCommand(COMMANDS.REFRESH_TRIGGERS, () => {
       triggerTreeProvider.refresh();
     }),

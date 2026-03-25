@@ -139,6 +139,16 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "flyte.activateTrigger",
+        "title": "Flyte: Activate Trigger",
+        "icon": "$(play)"
+      },
+      {
+        "command": "flyte.deactivateTrigger",
+        "title": "Flyte: Deactivate Trigger",
+        "icon": "$(debug-pause)"
+      },
+      {
         "command": "flyte.refreshTriggers",
         "title": "Flyte: Refresh Triggers",
         "icon": "$(refresh)"
@@ -237,6 +247,16 @@
         {
           "command": "flyte.deleteSecret",
           "when": "viewItem == flyteSecret",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.deactivateTrigger",
+          "when": "viewItem == flyteTriggerActive",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.activateTrigger",
+          "when": "viewItem == flyteTriggerPaused",
           "group": "inline"
         },
         {

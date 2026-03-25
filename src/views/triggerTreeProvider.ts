@@ -6,14 +6,17 @@ export class TriggerTreeItem extends vscode.TreeItem {
   constructor(
     public readonly triggerName: string,
     public readonly taskName: string,
-    public readonly status: string,
+    public readonly active: boolean,
+    public readonly cluster: ClusterConfig | undefined,
   ) {
     super(triggerName, vscode.TreeItemCollapsibleState.None);
-    this.description = `${taskName} (${status})`;
+    this.description = `${taskName}${active ? '' : ' (paused)'}`;
+    this.tooltip = `Trigger: ${triggerName}\nTask: ${taskName}\nStatus: ${active ? 'active' : 'paused'}`;
     this.iconPath = new vscode.ThemeIcon(
-      status === 'active' ? 'clock' : 'debug-pause',
+      active ? 'clock' : 'debug-pause',
+      active ? new vscode.ThemeColor('charts.green') : undefined,
     );
-    this.contextValue = 'flyteTrigger';
+    this.contextValue = active ? 'flyteTriggerActive' : 'flyteTriggerPaused';
   }
 }
 
@@ -43,13 +46,13 @@ export class TriggerTreeProvider
     if (clusters.length === 0) return [];
 
     const cluster = clusters.find(c => c.project && c.domain) ?? clusters[0];
-    const data = await queryFlyteCli(['trigger', '--limit', '20'], cluster);
+    const data = await queryFlyteCli(['trigger', '--limit', '30'], cluster);
 
     return data.map((t: any) => {
       const name = t.name ?? t.id?.name ?? 'unknown';
-      const taskName = t.taskName ?? t.task?.name ?? t.id?.taskName ?? '';
-      const status = t.active === false ? 'paused' : 'active';
-      return new TriggerTreeItem(name, taskName, status);
+      const taskName = t.taskName ?? t.task_name ?? t.id?.taskName ?? '';
+      const active = t.active !== false && t.status !== 'INACTIVE';
+      return new TriggerTreeItem(name, taskName, active, cluster);
     });
   }
 }

@@ -22,6 +22,8 @@ export const COMMANDS = {
   CREATE_SECRET: 'flyte.createSecret',
   DELETE_SECRET: 'flyte.deleteSecret',
   REFRESH_SECRETS: 'flyte.refreshSecrets',
+  ACTIVATE_TRIGGER: 'flyte.activateTrigger',
+  DEACTIVATE_TRIGGER: 'flyte.deactivateTrigger',
   REFRESH_TRIGGERS: 'flyte.refreshTriggers',
 } as const;
 

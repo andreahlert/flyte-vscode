@@ -73,9 +73,24 @@
       "flyte.Trigger(",
       "    name=\"${1:my-trigger}\",",
       "    automation=flyte.${2|Cron(expression=\"${3:0 * * * *}\"),FixedRate(interval_minutes=${4:60})|},",
+      "    description=\"${5:Runs on schedule}\",",
       ")"
     ],
-    "description": "Create a Flyte Trigger"
+    "description": "Create a Flyte Trigger with Cron or FixedRate"
+  },
+  "Flyte Trigger Daily": {
+    "prefix": "ftrigger-daily",
+    "body": [
+      "flyte.Trigger.daily(name=\"${1:daily-run}\")"
+    ],
+    "description": "Create a daily trigger"
+  },
+  "Flyte Trigger Hourly": {
+    "prefix": "ftrigger-hourly",
+    "body": [
+      "flyte.Trigger.hourly(name=\"${1:hourly-run}\")"
+    ],
+    "description": "Create an hourly trigger"
   },
   "Flyte Image": {
     "prefix": "fimage",
