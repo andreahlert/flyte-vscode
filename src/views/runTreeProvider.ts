@@ -4,20 +4,31 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { execFile } from 'child_process';
 
-interface LocalRun {
+interface RunData {
   runName: string;
   taskName: string;
   status: string;
+  source: 'local' | 'remote';
 }
 
 export class RunTreeItem extends vscode.TreeItem {
-  constructor(public readonly run: LocalRun) {
+  constructor(public readonly run: RunData, extensionPath?: string) {
     const shortTask = run.taskName.split('.').pop() ?? run.taskName;
     super(shortTask, vscode.TreeItemCollapsibleState.None);
-    this.description = run.status;
-    this.tooltip = `Run: ${run.runName}\nTask: ${run.taskName}\nStatus: ${run.status}`;
+    const sourceLabel = run.source === 'remote' ? 'remote' : 'local';
+    this.description = `${run.status} (${sourceLabel})`;
+    this.tooltip = `Run: ${run.runName}\nTask: ${run.taskName}\nStatus: ${run.status}\nSource: ${sourceLabel}`;
     this.contextValue = 'flyteRun';
-    this.iconPath = new vscode.ThemeIcon(statusIcon(run.status));
+
+    if (extensionPath) {
+      const iconFile = run.source === 'remote' ? 'union-icon.svg' : 'flyte-icon-purple.svg';
+      this.iconPath = {
+        light: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
+        dark: vscode.Uri.joinPath(vscode.Uri.file(extensionPath), 'resources', iconFile),
+      };
+    } else {
+      this.iconPath = new vscode.ThemeIcon(statusIcon(run.status));
+    }
   }
 }
 
@@ -52,7 +63,7 @@ function findCacheDb(): string | null {
   return null;
 }
 
-function queryRuns(dbPath: string): Promise<LocalRun[]> {
+function queryRuns(dbPath: string): Promise<Omit<RunData, 'source'>[]> {
   // Use python3 to read SQLite (always available in Flyte environments)
   const script = `
 import sqlite3, json, sys
@@ -98,6 +109,8 @@ print(json.dumps([{"run_name": r[0], "task_name": r[1], "status": r[2]} for r in
   });
 }
 
+export type RunFilter = 'all' | 'local' | 'remote';
+
 export class RunTreeProvider
   implements vscode.TreeDataProvider<RunTreeItem>
 {
@@ -106,13 +119,24 @@ export class RunTreeProvider
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private clusterGetter: () => import('./clusterTreeProvider.js').ClusterConfig[];
+  private extensionPath: string;
+  private filter: RunFilter = 'all';
 
-  constructor(clusterGetter?: () => import('./clusterTreeProvider.js').ClusterConfig[]) {
+  constructor(
+    clusterGetter?: () => import('./clusterTreeProvider.js').ClusterConfig[],
+    extensionPath?: string,
+  ) {
     this.clusterGetter = clusterGetter ?? (() => []);
+    this.extensionPath = extensionPath ?? '';
   }
 
   refresh(): void {
     this._onDidChangeTreeData.fire();
+  }
+
+  setFilter(filter: RunFilter): void {
+    this.filter = filter;
+    this.refresh();
   }
 
   getTreeItem(element: RunTreeItem): vscode.TreeItem {
@@ -123,34 +147,43 @@ export class RunTreeProvider
     const items: RunTreeItem[] = [];
 
     // Remote runs from clusters
-    const { queryFlyteCli } = await import('../cli/cliQuery.js');
-    const clusters = this.clusterGetter();
-    if (clusters.length > 0) {
-      const cluster = clusters.find(c => c.project && c.domain) ?? clusters[0];
-      try {
-        const data = await queryFlyteCli(['run', '--limit', '20'], cluster);
-        for (const r of data) {
-          const runName = r.action?.id?.run?.name ?? r.name ?? '';
-          const taskName = r.action?.metadata?.task?.shortName ?? r.action?.metadata?.funtionName ?? '';
-          const phase = r.action?.state?.phase ?? '';
-          const status = phase.replace('PHASE_', '').toLowerCase() || 'unknown';
-          if (runName) {
-            items.push(new RunTreeItem({ runName, taskName, status }));
+    if (this.filter !== 'local') {
+      const { queryFlyteCli } = await import('../cli/cliQuery.js');
+      const clusters = this.clusterGetter();
+      if (clusters.length > 0) {
+        const cluster = clusters.find(c => c.project && c.domain) ?? clusters[0];
+        try {
+          const data = await queryFlyteCli(['run', '--limit', '20'], cluster);
+          for (const r of data) {
+            const runName = r.action?.id?.run?.name ?? r.name ?? '';
+            const taskName = r.action?.metadata?.task?.shortName ?? r.action?.metadata?.funtionName ?? '';
+            const phase = r.action?.state?.phase ?? '';
+            const status = phase.replace('PHASE_', '').toLowerCase() || 'unknown';
+            if (runName) {
+              items.push(new RunTreeItem(
+                { runName, taskName, status, source: 'remote' },
+                this.extensionPath,
+              ));
+            }
           }
+        } catch {
+          // Remote query failed, continue with local
         }
-      } catch {
-        // Remote query failed, continue with local
       }
     }
 
     // Local runs from SQLite
-    const dbPath = findCacheDb();
-    if (dbPath) {
-      const localRuns = await queryRuns(dbPath);
-      for (const r of localRuns) {
-        // Avoid duplicates
-        if (!items.some(i => i.run.runName === r.runName)) {
-          items.push(new RunTreeItem(r));
+    if (this.filter !== 'remote') {
+      const dbPath = findCacheDb();
+      if (dbPath) {
+        const localRuns = await queryRuns(dbPath);
+        for (const r of localRuns) {
+          if (!items.some(i => i.run.runName === r.runName)) {
+            items.push(new RunTreeItem(
+              { ...r, source: 'local' },
+              this.extensionPath,
+            ));
+          }
         }
       }
     }

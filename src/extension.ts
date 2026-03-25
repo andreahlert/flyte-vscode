@@ -64,7 +64,7 @@ export async function activate(
   // Tree view providers
   const envTreeProvider = new EnvironmentTreeProvider();
   const taskTreeProvider = new TaskTreeProvider();
-  const runTreeProvider = new RunTreeProvider(getClusters);
+  const runTreeProvider = new RunTreeProvider(getClusters, context.extensionPath);
   const appTreeProvider = new AppTreeProvider();
   const secretTreeProvider = new SecretTreeProvider(getClusters);
   const triggerTreeProvider = new TriggerTreeProvider(getClusters);
@@ -120,6 +120,19 @@ export async function activate(
     }),
     vscode.commands.registerCommand(COMMANDS.RESUME_CLUSTER, (item) => {
       clusterTreeProvider.resumeCluster(item);
+    }),
+    vscode.commands.registerCommand(COMMANDS.FILTER_RUNS, async () => {
+      const choice = await vscode.window.showQuickPick(
+        [
+          { label: 'All', description: 'Local and remote runs', value: 'all' as const },
+          { label: 'Local', description: 'Only local runs', value: 'local' as const },
+          { label: 'Remote', description: 'Only cluster runs', value: 'remote' as const },
+        ],
+        { placeHolder: 'Filter runs' },
+      );
+      if (choice) {
+        runTreeProvider.setFilter(choice.value);
+      }
     }),
     vscode.commands.registerCommand(COMMANDS.CREATE_SECRET, async () => {
       const clusters = getClusters();

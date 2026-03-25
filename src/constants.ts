@@ -18,6 +18,7 @@ export const COMMANDS = {
   PAUSE_CLUSTER: 'flyte.pauseCluster',
   RESUME_CLUSTER: 'flyte.resumeCluster',
   OPEN_TUI: 'flyte.openTui',
+  FILTER_RUNS: 'flyte.filterRuns',
   CREATE_SECRET: 'flyte.createSecret',
   REFRESH_SECRETS: 'flyte.refreshSecrets',
   REFRESH_TRIGGERS: 'flyte.refreshTriggers',

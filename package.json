@@ -119,6 +119,11 @@
         "icon": "$(terminal)"
       },
       {
+        "command": "flyte.filterRuns",
+        "title": "Flyte: Filter Runs",
+        "icon": "$(filter)"
+      },
+      {
         "command": "flyte.createSecret",
         "title": "Flyte: Create Secret",
         "icon": "$(add)"
@@ -188,9 +193,14 @@
           "group": "navigation@2"
         },
         {
-          "command": "flyte.openTui",
+          "command": "flyte.filterRuns",
           "when": "view == flyte.runs",
           "group": "navigation@1"
+        },
+        {
+          "command": "flyte.openTui",
+          "when": "view == flyte.runs",
+          "group": "navigation@2"
         },
         {
           "command": "flyte.createSecret",
@@ -207,6 +217,16 @@
         {
           "command": "flyte.runTask",
           "when": "viewItem == flyteTask",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.deploy",
+          "when": "viewItem == flyteTask",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.deploy",
+          "when": "viewItem == flyteApp",
           "group": "inline"
         },
         {
