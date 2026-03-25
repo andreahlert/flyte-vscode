@@ -159,8 +159,8 @@ export class RunTreeProvider
           for (const r of data) {
             const runName = r.action?.id?.run?.name ?? r.name ?? '';
             const taskName = r.action?.metadata?.task?.shortName ?? r.action?.metadata?.funtionName ?? '';
-            const phase = r.action?.state?.phase ?? '';
-            const status = phase.replace('PHASE_', '').toLowerCase() || 'unknown';
+            const phase = r.action?.status?.phase ?? r.action?.state?.phase ?? '';
+            const status = phase.replace('ACTION_PHASE_', '').replace('PHASE_', '').toLowerCase() || 'unknown';
             if (runName) {
               items.push(new RunTreeItem(
                 { runName, taskName, status, source: 'remote' },
