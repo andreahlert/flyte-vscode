@@ -8,9 +8,17 @@ export function setDeployClusterProvider(fn: () => ClusterConfig[]): void {
   getAllClusters = fn;
 }
 
-export async function handleDeploy(uri?: vscode.Uri): Promise<void> {
-  const editor = vscode.window.activeTextEditor;
-  const fileUri = uri ?? editor?.document.uri;
+export async function handleDeploy(uriOrItem?: vscode.Uri | any): Promise<void> {
+  let fileUri: vscode.Uri | undefined;
+
+  if (uriOrItem instanceof vscode.Uri) {
+    fileUri = uriOrItem;
+  } else if (uriOrItem?.fileUri) {
+    // From sidebar tree item (TaskTreeItem, AppTreeItem)
+    fileUri = uriOrItem.fileUri;
+  } else {
+    fileUri = vscode.window.activeTextEditor?.document.uri;
+  }
 
   if (!fileUri) {
     vscode.window.showErrorMessage('No Python file open.');
@@ -23,10 +31,16 @@ export async function handleDeploy(uri?: vscode.Uri): Promise<void> {
     return;
   }
 
-  const picked = await vscode.window.showQuickPick(
-    clusters.map((c) => ({ label: c.name, description: c.endpoint, cluster: c })),
-    { placeHolder: 'Deploy to which cluster?' },
-  );
+  const picked = clusters.length === 1
+    ? { cluster: clusters[0] }
+    : await vscode.window.showQuickPick(
+        clusters.map((c) => ({
+          label: c.name,
+          description: `${c.project ?? c.endpoint}`,
+          cluster: c,
+        })),
+        { placeHolder: 'Deploy to which cluster?' },
+      );
   if (!picked) return;
 
   try {
