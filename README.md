@@ -1,37 +1,85 @@
-# Flyte
+<p align="center">
+  <img src="assets/banner.png" alt="Flyte" width="100%">
+</p>
 
-VS Code extension for [Flyte V2](https://github.com/flyteorg/flyte-sdk). Code intelligence, CLI integration, cluster management, and workflow monitoring for ML pipeline development.
+<p align="center">
+  <strong>Complete Flyte V2 development toolkit: code intelligence, cluster management, secrets, triggers, and workflow monitoring.</strong>
+</p>
 
-![Sidebar](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-sidebar.gif)
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=atoolz.flyte-vscode">
+    <img src="https://img.shields.io/visual-studio-marketplace/v/atoolz.flyte-vscode?style=flat-square&label=VS%20Marketplace&color=6C3FC5" alt="VS Marketplace Version">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=atoolz.flyte-vscode">
+    <img src="https://img.shields.io/visual-studio-marketplace/i/atoolz.flyte-vscode?style=flat-square&label=Installs&color=6C3FC5" alt="Installs">
+  </a>
+  <a href="https://github.com/andreahlert/flyte-vscode/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/andreahlert/flyte-vscode?style=flat-square&color=6C3FC5" alt="License">
+  </a>
+  <img src="https://img.shields.io/badge/Flyte-V2-6C3FC5?style=flat-square" alt="Flyte V2">
+</p>
+
+<br>
 
 ## Features
 
-### Code Intelligence
+### Sidebar
 
-![Autocomplete](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-completion.gif)
+> All Flyte resources at a glance: environments, tasks, apps, clusters, runs, secrets, and triggers.
 
-- **Autocomplete** inside `TaskEnvironment()`, `Resources()`, `AppEnvironment()`, `Trigger()`, `Cache()`, `Secret()`, and `@env.task()` with parameter names, types, and defaults
-- **GPU completions** after `gpu=` with all valid accelerators (T4, A100, H100, L4, V100, etc.)
+<p align="center">
+  <img src="assets/demo-sidebar.gif" alt="Sidebar Demo" width="700">
+</p>
 
-![Hover](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-hover.gif)
+### Autocomplete
 
-- **Hover documentation** on all Flyte classes, parameters, and functions (`flyte.run`, `flyte.deploy`, `flyte.map`, `flyte.group`, `flyte.trace`)
-- **Diagnostics** with real-time validation: invalid names, reserved ports, config conflicts, empty trigger names
+> Smart completions inside `TaskEnvironment()`, `Resources()`, `AppEnvironment()`, `Trigger()`, `Cache()`, `Secret()`, and `@env.task()` with types, defaults, and docs.
+
+<p align="center">
+  <img src="assets/demo-completion.gif" alt="Autocomplete Demo" width="700">
+</p>
+
+### Hover Documentation
+
+> Hover over any Flyte class or parameter to see inline docs. Covers `flyte.run`, `flyte.deploy`, `flyte.map`, `flyte.group`, `flyte.trace`, and all SDK classes.
+
+<p align="center">
+  <img src="assets/demo-hover.gif" alt="Hover Demo" width="700">
+</p>
 
 ### CodeLens
 
-![CodeLens](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-codelens.gif)
+> `Run Task`, `Deploy`, and `Graph` actions above every `@env.task` function. Run locally with TUI or deploy to any cluster.
 
-- **Run Task** above tasks with all params having defaults
-- **Deploy** when clusters are configured (asks which environment)
-- **Graph** renders an ASCII DAG in the terminal with colors and badges
+<p align="center">
+  <img src="assets/demo-codelens.gif" alt="CodeLens Demo" width="700">
+</p>
+
+### Cluster Management
+
+> Connect to Union.ai or self-hosted clusters. Create local clusters with one click (k3d + Flyte Manager).
+
+<p align="center">
+  <img src="assets/demo-clusters.gif" alt="Clusters Demo" width="700">
+</p>
+
+### Runs, Secrets & Triggers
+
+| Feature | Description |
+|---------|-------------|
+| **Runs** | Local + remote runs with status icons. Union (gold) or Flyte (purple) logo with colored dots: green=succeeded, red=failed, orange=running. Filter by All/Local/Remote. |
+| **Secrets** | Create, list, and delete secrets on any cluster. Password-masked input. |
+| **Triggers** | List triggers with status. Activate, deactivate, or delete from sidebar. |
+| **Deploy** | Deploy environments to cluster. Asks which environment when multiple exist. |
+| **Diagnostics** | Real-time validation: invalid names, reserved ports, config conflicts, empty triggers. |
+| **Graph** | ASCII DAG in terminal with colors, parameter signatures, and badges. |
 
 ### Snippets
 
-![Snippets](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-snippets.gif)
+15 ready-to-use patterns:
 
-| Prefix | Output |
-|--------|--------|
+| Prefix | Description |
+|--------|-------------|
 | `fenv` | `TaskEnvironment` with resources |
 | `ftask` | `@env.task` async function |
 | `fapp` | `AppEnvironment` with port |
@@ -48,62 +96,24 @@ VS Code extension for [Flyte V2](https://github.com/flyteorg/flyte-sdk). Code in
 | `ftrace` | `@flyte.trace` decorator |
 | `fsecret` | `Secret` with env var |
 
-### Cluster Management
+<br>
 
-![Clusters](https://raw.githubusercontent.com/andreahlert/flyte-vscode/main/assets/demo-clusters.gif)
+## Installation
 
-- **Union.ai**: connect with endpoint, project, domain (3 steps)
-- **Self-Hosted**: connect to existing or create local cluster (k3d + Flyte Manager)
-- **Pause/Resume** local clusters (stops k3d + Flyte Manager)
-- **Rename/Delete** clusters from sidebar
+**VS Code Marketplace:**
 
-### Task Execution
+1. Open VS Code
+2. Press `Ctrl+Shift+X` (or `Cmd+Shift+X` on macOS)
+3. Search for **"Flyte"** by atoolz
+4. Click **Install**
 
-- **Local**: runs with interactive TUI (`flyte run --local --tui`)
-- **Remote**: runs on any configured cluster with auto-injected flags
-- **Cluster picker**: every Run/Deploy/Build/Serve command asks which cluster
-- Runs show **Union logo** (gold) for remote or **Flyte logo** (purple) for local, with colored status dots (green=succeeded, red=failed, orange=running, gray=unknown)
-- **Filter** runs by All, Local, or Remote
+**Command Line:**
 
-### Runs
-
-- **Local runs** from SQLite persistence (auto-enabled)
-- **Remote runs** from cluster via `flyte get run`
-- Status icons with source indicators
-- **TUI** access for interactive run exploration
-
-### Secrets
-
-- **List** secrets from cluster
-- **Create** new secrets (password-masked input)
-- **Delete** secrets with confirmation
-- Cluster picker when multiple clusters configured
-
-### Triggers
-
-- **List** triggers from cluster with status (active/paused)
-- **Activate/Deactivate** triggers via `flyte update trigger`
-- **Delete** triggers from cluster with confirmation
-- Triggers are defined in code (`@env.task(triggers=...)`) and deployed to the cluster
-
-### Deploy
-
-- Deploy environments to a cluster via `flyte deploy`
-- Asks which environment when file has multiple
-- Auto-selects environment when deploying from task sidebar item
-- Builds Docker images, bundles code, registers tasks
-
-## Requirements
-
-- VS Code 1.85+
-- Python with Flyte SDK (`pip install flyte`)
-- Docker (optional, for local cluster)
-
-## Install
-
-```sh
+```bash
 code --install-extension atoolz.flyte-vscode
 ```
+
+<br>
 
 ## Quick Start
 
@@ -114,6 +124,8 @@ code --install-extension atoolz.flyte-vscode
 5. Click **Run Task** above the task to execute locally with TUI
 6. Add a cluster via the sidebar to deploy and run remotely
 
+<br>
+
 ## Configuration
 
 | Setting | Default | Description |
@@ -123,6 +135,8 @@ code --install-extension atoolz.flyte-vscode
 | `flyte.autoRefreshRuns` | `true` | Auto-refresh runs view |
 | `flyte.refreshInterval` | `10000` | Refresh interval in ms |
 
+<br>
+
 ## Sidebar Sections
 
 | Section | Source | Description |
@@ -131,9 +145,11 @@ code --install-extension atoolz.flyte-vscode
 | Tasks | Local code | `@env.task` functions with signatures |
 | Apps | Local code | `AppEnvironment` definitions |
 | Clusters | Extension config | Union.ai and self-hosted connections |
-| Runs | Local SQLite + Cluster | Execution history with status icons |
+| Runs | Local + Cluster | Execution history with status icons |
 | Secrets | Cluster | Secret management (create/delete) |
 | Triggers | Cluster | Scheduled triggers (activate/deactivate/delete) |
+
+<br>
 
 ## Links
 
@@ -142,6 +158,14 @@ code --install-extension atoolz.flyte-vscode
 - [SDK Reference](https://www.union.ai/docs/v2/byoc/api-reference/flyte-sdk/)
 - [CLI Reference](https://www.union.ai/docs/v2/byoc/api-reference/flyte-cli/)
 
+<br>
+
 ## License
 
-MIT
+[MIT](LICENSE)
+
+---
+
+<p align="center">
+  <sub>Built for the Flyte community</sub>
+</p>
