@@ -11,11 +11,19 @@ export function setRunClusterProvider(fn: () => ClusterConfig[]): void {
 }
 
 export async function handleRunTask(
-  uri?: vscode.Uri,
+  uriOrItem?: vscode.Uri | any,
   taskName?: string,
 ): Promise<void> {
-  const editor = vscode.window.activeTextEditor;
-  const fileUri = uri ?? editor?.document.uri;
+  let fileUri: vscode.Uri | undefined;
+
+  if (uriOrItem instanceof vscode.Uri) {
+    fileUri = uriOrItem;
+  } else if (uriOrItem?.fileUri) {
+    fileUri = uriOrItem.fileUri;
+    taskName = taskName ?? uriOrItem.task?.functionName;
+  } else {
+    fileUri = vscode.window.activeTextEditor?.document.uri;
+  }
 
   if (!fileUri) {
     vscode.window.showErrorMessage('No Python file open.');
