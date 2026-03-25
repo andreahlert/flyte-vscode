@@ -140,7 +140,19 @@ export async function activate(
         vscode.window.showErrorMessage('No clusters configured.');
         return;
       }
-      const cluster = clusters.find(c => c.project) ?? clusters[0];
+      let cluster = clusters[0];
+      if (clusters.length > 1) {
+        const picked = await vscode.window.showQuickPick(
+          clusters.map(c => ({
+            label: c.name,
+            description: `${c.project ?? c.endpoint}`,
+            cluster: c,
+          })),
+          { placeHolder: 'Create secret on which cluster?' },
+        );
+        if (!picked) return;
+        cluster = picked.cluster;
+      }
       const name = await vscode.window.showInputBox({ prompt: 'Secret name', ignoreFocusOut: true });
       if (!name) return;
       const value = await vscode.window.showInputBox({ prompt: 'Secret value', password: true, ignoreFocusOut: true });
