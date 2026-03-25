@@ -129,6 +129,11 @@
         "icon": "$(add)"
       },
       {
+        "command": "flyte.deleteSecret",
+        "title": "Flyte: Delete Secret",
+        "icon": "$(trash)"
+      },
+      {
         "command": "flyte.refreshSecrets",
         "title": "Flyte: Refresh Secrets",
         "icon": "$(refresh)"
@@ -227,6 +232,11 @@
         {
           "command": "flyte.deploy",
           "when": "viewItem == flyteApp",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.deleteSecret",
+          "when": "viewItem == flyteSecret",
           "group": "inline"
         },
         {

@@ -20,6 +20,7 @@ export const COMMANDS = {
   OPEN_TUI: 'flyte.openTui',
   FILTER_RUNS: 'flyte.filterRuns',
   CREATE_SECRET: 'flyte.createSecret',
+  DELETE_SECRET: 'flyte.deleteSecret',
   REFRESH_SECRETS: 'flyte.refreshSecrets',
   REFRESH_TRIGGERS: 'flyte.refreshTriggers',
 } as const;

@@ -169,6 +169,30 @@ export async function activate(
       terminal.sendText([...globalArgs, ...cmdArgs].join(' '));
       setTimeout(() => secretTreeProvider.refresh(), 3000);
     }),
+    vscode.commands.registerCommand(COMMANDS.DELETE_SECRET, async (item: any) => {
+      const name = item?.name ?? item?.label;
+      if (!name) return;
+
+      const confirm = await vscode.window.showWarningMessage(
+        `Delete secret "${name}"?`, { modal: true }, 'Delete', 'Cancel',
+      );
+      if (confirm !== 'Delete') return;
+
+      const clusters = getClusters();
+      const cluster = clusters.find(c => c.project) ?? clusters[0];
+      if (!cluster) return;
+
+      const terminal = vscode.window.createTerminal('Flyte: Delete Secret');
+      terminal.show();
+      const globalArgs: string[] = ['flyte'];
+      if (cluster.endpoint) globalArgs.push('--endpoint', cluster.endpoint);
+      if (cluster.insecure) globalArgs.push('--insecure');
+      const cmdArgs = ['delete', 'secret', `"${name}"`];
+      if (cluster.project) cmdArgs.push('--project', cluster.project);
+      if (cluster.domain) cmdArgs.push('--domain', cluster.domain);
+      terminal.sendText([...globalArgs, ...cmdArgs].join(' '));
+      setTimeout(() => secretTreeProvider.refresh(), 3000);
+    }),
     vscode.commands.registerCommand(COMMANDS.REFRESH_SECRETS, () => {
       secretTreeProvider.refresh();
     }),
