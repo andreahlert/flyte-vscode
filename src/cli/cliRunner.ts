@@ -107,12 +107,21 @@ export async function runTask(
 export async function deploy(
   filePath: string,
   cluster?: ClusterConfig,
+  envVarName?: string,
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
+  const cmdArgs = [
+    ...registryArgs(cluster),
+    filePath,
+    ...(envVarName ? [envVarName] : []),
+    '--project', cluster?.project ?? 'flytesnacks',
+    '--domain', cluster?.domain ?? 'development',
+    ...extraArgs,
+  ];
   return runInTerminal(
     'deploy',
-    ['--project', cluster?.project ?? 'flytesnacks', '--domain', cluster?.domain ?? 'development', ...registryArgs(cluster), filePath, ...extraArgs],
-    'Flyte: Deploy',
+    cmdArgs,
+    `Flyte: Deploy${envVarName ? ` ${envVarName}` : ''}`,
     clusterArgs(cluster),
   );
 }
