@@ -1,0 +1,201 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700" width="960" height="700">
+  <style>
+    @keyframes fadeIn1 { 0%,5%{opacity:0} 15%,100%{opacity:1} }
+    @keyframes fadeIn2 { 0%,15%{opacity:0} 25%,100%{opacity:1} }
+    @keyframes fadeIn3 { 0%,25%{opacity:0} 35%,100%{opacity:1} }
+    @keyframes fadeIn4 { 0%,35%{opacity:0} 45%,100%{opacity:1} }
+    @keyframes fadeIn5 { 0%,45%{opacity:0} 55%,100%{opacity:1} }
+    @keyframes fadeIn6 { 0%,55%{opacity:0} 65%,100%{opacity:1} }
+    @keyframes fadeIn7 { 0%,65%{opacity:0} 75%,100%{opacity:1} }
+    .mono { font-family: 'Cascadia Code','Fira Code','SF Mono',Consolas,monospace }
+    .sans { font-family: -apple-system,'Segoe UI',system-ui,sans-serif }
+  </style>
+
+  <!-- Window -->
+  <rect width="960" height="700" rx="8" fill="#1e1e1e"/>
+  <rect width="960" height="30" rx="8" fill="#323233"/>
+  <rect x="0" y="22" width="960" height="8" fill="#323233"/>
+  <circle cx="16" cy="15" r="5" fill="#ff5f57"/>
+  <circle cx="34" cy="15" r="5" fill="#ffbd2e"/>
+  <circle cx="52" cy="15" r="5" fill="#28c840"/>
+  <text x="480" y="19" text-anchor="middle" fill="#999" font-size="11" class="sans">pipeline.py - ml-pipeline - Visual Studio Code</text>
+
+  <!-- Activity bar -->
+  <rect x="0" y="30" width="44" height="670" fill="#2b2b2b"/>
+  <rect x="0" y="30" width="2" height="36" fill="#fff"/>
+  <!-- Flyte icon -->
+  <g transform="translate(10,36) scale(0.45)">
+    <path d="M10.7325 20.4388C11.6982 18.1438 12.1898 15.7827 12.6324 13.4131C13.387 9.37307 13.8972 5.30623 13.7258 1.18364C13.6932 0.40028 13.9138 0.109059 14.7575 0.188746C17.0421 0.404513 19.3074 0.665615 21.3612 1.79067C21.9048 2.0885 22.382 1.9286 22.9017 1.78205C26.8327 0.67369 30.8187 -0.0779745 34.9253 0.00645783C37.6237 0.0619366 40.2407 0.49755 42.7297 1.6147C43.5435 1.97993 43.845 2.49922 43.77 3.36313C43.5683 5.68772 42.639 7.77122 41.6739 9.84286C41.4101 10.4092 41.0266 10.0835 40.7011 9.87791Z" fill="#fff"/>
+  </g>
+
+  <!-- Sidebar -->
+  <rect x="44" y="30" width="280" height="670" fill="#252526"/>
+  <line x1="324" y1="30" x2="324" y2="700" stroke="#1b1b1b" stroke-width="1"/>
+
+  <!-- FLYTE header -->
+  <text x="56" y="50" fill="#bbb" font-size="11" class="sans" font-weight="600" letter-spacing="0.5">FLYTE</text>
+  <text x="305" y="50" fill="#888" font-size="11" class="mono">...</text>
+
+  <!-- ▼ ENVIRONMENTS -->
+  <g style="animation: fadeIn1 8s ease-in-out infinite">
+    <text x="54" y="70" fill="#ccc" font-size="10" class="sans" font-weight="600">▼ ENVIRONMENTS</text>
+    <text x="68" y="86" fill="#ccc" font-size="11" class="sans">{ } gpu-training</text>
+    <text x="195" y="86" fill="#666" font-size="9" class="mono">train_env</text>
+    <text x="68" y="100" fill="#ccc" font-size="11" class="sans">{ } evaluation</text>
+    <text x="195" y="100" fill="#666" font-size="9" class="mono">eval_env</text>
+    <text x="68" y="114" fill="#ccc" font-size="11" class="sans">{ } distributed-training</text>
+    <text x="68" y="128" fill="#ccc" font-size="11" class="sans">{ } data-processing</text>
+    <text x="195" y="128" fill="#666" font-size="9" class="mono">data_env</text>
+    <text x="68" y="142" fill="#ccc" font-size="11" class="sans">{ } hello</text>
+    <text x="195" y="142" fill="#666" font-size="9" class="mono">env</text>
+  </g>
+
+  <!-- ▼ TASKS -->
+  <g style="animation: fadeIn2 8s ease-in-out infinite">
+    <text x="54" y="162" fill="#ccc" font-size="10" class="sans" font-weight="600">▼ TASKS</text>
+    <text x="68" y="178" fill="#ccc" font-size="11" class="sans">ƒ fetch_dataset</text>
+    <text x="165" y="178" fill="#666" font-size="9" class="mono">async data_env.task</text>
+    <text x="68" y="192" fill="#ccc" font-size="11" class="sans">ƒ preprocess_shard</text>
+    <text x="180" y="192" fill="#666" font-size="9" class="mono">async data_env.task</text>
+    <text x="68" y="206" fill="#ccc" font-size="11" class="sans">ƒ split_into_shards</text>
+    <text x="68" y="220" fill="#ccc" font-size="11" class="sans">ƒ merge_shards</text>
+    <text x="68" y="234" fill="#ccc" font-size="11" class="sans">ƒ create_train_val_split</text>
+    <text x="68" y="248" fill="#ccc" font-size="11" class="sans">ƒ train_model</text>
+    <text x="155" y="248" fill="#666" font-size="9" class="mono">async train_env.task</text>
+  </g>
+
+  <!-- ▷ APPS -->
+  <g style="animation: fadeIn3 8s ease-in-out infinite">
+    <text x="54" y="268" fill="#ccc" font-size="10" class="sans" font-weight="600">▷ APPS</text>
+  </g>
+
+  <!-- ▼ CLUSTERS -->
+  <g style="animation: fadeIn4 8s ease-in-out infinite">
+    <text x="54" y="288" fill="#ccc" font-size="10" class="sans" font-weight="600">▼ CLUSTERS</text>
+    <!-- Union icon (gold circle) -->
+    <circle cx="68" cy="302" r="6" fill="#D4A843"/>
+    <text x="62" y="305" fill="#1e1e1e" font-size="8" class="sans" font-weight="bold">U</text>
+    <text x="80" y="305" fill="#ccc" font-size="11" class="sans" font-weight="500">tryv2</text>
+    <text x="115" y="305" fill="#666" font-size="9" class="mono">andreahlert</text>
+    <!-- Flyte icon (purple circle) -->
+    <circle cx="68" cy="320" r="6" fill="#6C3FC5"/>
+    <text x="63" y="323" fill="#fff" font-size="8" class="sans" font-weight="bold">F</text>
+    <text x="80" y="323" fill="#ccc" font-size="11" class="sans" font-weight="500">local</text>
+    <text x="110" y="323" fill="#666" font-size="9" class="mono">flytesnacks (running)</text>
+  </g>
+
+  <!-- ▼ RUNS -->
+  <g style="animation: fadeIn5 8s ease-in-out infinite">
+    <text x="54" y="345" fill="#ccc" font-size="10" class="sans" font-weight="600">▼ RUNS</text>
+    <!-- Remote runs with Union icon + status dot -->
+    <!-- build-image succeeded (remote) -->
+    <circle cx="66" cy="359" r="5" fill="#D4A843"/>
+    <circle cx="70" cy="363" r="3" fill="#28c840" stroke="#1e1e1e" stroke-width="1"/>
+    <text x="80" y="362" fill="#ccc" font-size="11" class="sans">build-image</text>
+    <text x="160" y="362" fill="#666" font-size="9" class="mono">succeeded (remote)</text>
+    <!-- run_training_pipeline failed (remote) -->
+    <circle cx="66" cy="377" r="5" fill="#D4A843"/>
+    <circle cx="70" cy="381" r="3" fill="#f44336" stroke="#1e1e1e" stroke-width="1"/>
+    <text x="80" y="380" fill="#ccc" font-size="11" class="sans">run_training_pipeline</text>
+    <text x="220" y="380" fill="#666" font-size="9" class="mono">failed (remote)</text>
+    <!-- run_training_pipeline failed (remote) -->
+    <circle cx="66" cy="395" r="5" fill="#D4A843"/>
+    <circle cx="70" cy="399" r="3" fill="#f44336" stroke="#1e1e1e" stroke-width="1"/>
+    <text x="80" y="398" fill="#ccc" font-size="11" class="sans">run_training_pipeline</text>
+    <text x="220" y="398" fill="#666" font-size="9" class="mono">failed (remote)</text>
+    <!-- build-image succeeded (remote) -->
+    <circle cx="66" cy="413" r="5" fill="#D4A843"/>
+    <circle cx="70" cy="417" r="3" fill="#28c840" stroke="#1e1e1e" stroke-width="1"/>
+    <text x="80" y="416" fill="#ccc" font-size="11" class="sans">build-image</text>
+    <text x="160" y="416" fill="#666" font-size="9" class="mono">succeeded (remote)</text>
+    <!-- Local runs with Flyte icon -->
+    <circle cx="66" cy="431" r="5" fill="#6C3FC5"/>
+    <circle cx="70" cy="435" r="3" fill="#28c840" stroke="#1e1e1e" stroke-width="1"/>
+    <text x="80" y="434" fill="#ccc" font-size="11" class="sans">run_training_pipeline</text>
+    <text x="220" y="434" fill="#666" font-size="9" class="mono">succeeded (local)</text>
+  </g>
+
+  <!-- ▼ SECRETS -->
+  <g style="animation: fadeIn6 8s ease-in-out infinite">
+    <text x="54" y="458" fill="#ccc" font-size="10" class="sans" font-weight="600">▼ SECRETS</text>
+    <!-- Key icon -->
+    <text x="68" y="474" fill="#D4A843" font-size="11" class="mono">🔑</text>
+    <text x="86" y="474" fill="#ccc" font-size="11" class="sans">baba</text>
+  </g>
+
+  <!-- ▼ TRIGGERS -->
+  <g style="animation: fadeIn7 8s ease-in-out infinite">
+    <text x="54" y="498" fill="#ccc" font-size="10" class="sans" font-weight="600">▼ TRIGGERS</text>
+    <!-- Paused trigger with pause icon -->
+    <text x="64" y="514" fill="#888" font-size="11" class="mono">⏸</text>
+    <text x="80" y="514" fill="#ccc" font-size="11" class="sans">nightly-pipeline</text>
+    <text x="194" y="514" fill="#666" font-size="9" class="mono">data-processing.run_train...</text>
+  </g>
+
+  <!-- Editor area -->
+  <rect x="324" y="30" width="636" height="490" fill="#1e1e1e"/>
+
+  <!-- Tab -->
+  <rect x="324" y="30" width="120" height="28" fill="#1e1e1e"/>
+  <text x="350" y="48" fill="#ccc" font-size="11" class="sans">pipeline.py</text>
+  <text x="440" y="48" fill="#666" font-size="11" class="sans">x</text>
+
+  <!-- Breadcrumb -->
+  <text x="340" y="68" fill="#888" font-size="10" class="sans">pipeline.py > fetch_dataset</text>
+
+  <!-- Code lines -->
+  <g fill="#555" font-size="11" class="mono">
+    <text x="340" y="90">133</text>
+    <text x="340" y="106">140</text>
+    <text x="340" y="122">141</text>
+    <text x="340" y="138">142</text>
+    <text x="340" y="158">143</text>
+    <text x="340" y="174">144</text>
+    <text x="340" y="190">145</text>
+    <text x="340" y="206">146</text>
+    <text x="340" y="222">147</text>
+  </g>
+
+  <!-- CodeLens -->
+  <text x="380" y="154" fill="#999" font-size="10" class="mono">☁Deploy | ⊞Graph</text>
+
+  <!-- Code content -->
+  <text x="375" y="90" fill="#569cd6" font-size="11" class="mono">async def</text>
+  <text x="455" y="90" fill="#dcdcaa" font-size="11" class="mono">merge_shards</text>
+  <text x="565" y="90" fill="#d4d4d4" font-size="11" class="mono">(processed_shards: list[dict]) -> dict:</text>
+  <text x="395" y="106" fill="#d4d4d4" font-size="11" class="mono">}</text>
+
+  <text x="375" y="162" fill="#dcdcaa" font-size="11" class="mono">@data_env</text>
+  <text x="445" y="162" fill="#d4d4d4" font-size="11" class="mono">.</text>
+  <text x="452" y="162" fill="#dcdcaa" font-size="11" class="mono">task</text>
+  <text x="375" y="178" fill="#569cd6" font-size="11" class="mono">async def</text>
+  <text x="455" y="178" fill="#dcdcaa" font-size="11" class="mono">create_train_val_split</text>
+  <text x="640" y="178" fill="#d4d4d4" font-size="11" class="mono">(</text>
+  <text x="395" y="194" fill="#9cdcfe" font-size="11" class="mono">dataset</text>
+  <text x="452" y="194" fill="#d4d4d4" font-size="11" class="mono">: dict,</text>
+  <text x="395" y="210" fill="#9cdcfe" font-size="11" class="mono">val_ratio</text>
+  <text x="470" y="210" fill="#d4d4d4" font-size="11" class="mono">: float = 0.1,</text>
+  <text x="375" y="226" fill="#d4d4d4" font-size="11" class="mono">) -> dict:</text>
+
+  <!-- Terminal area -->
+  <rect x="324" y="520" width="636" height="160" fill="#1a1a1a"/>
+  <rect x="324" y="520" width="636" height="24" fill="#252526"/>
+  <text x="340" y="536" fill="#ccc" font-size="10" class="sans">PROBLEMS</text>
+  <text x="410" y="536" fill="#ccc" font-size="10" class="sans">OUTPUT</text>
+  <text x="460" y="536" fill="#ccc" font-size="10" class="sans">DEBUG CONSOLE</text>
+  <text x="555" y="536" fill="#0078d4" font-size="10" class="sans" font-weight="600">TERMINAL</text>
+  <text x="620" y="536" fill="#ccc" font-size="10" class="sans">PORTS</text>
+
+  <!-- Terminal content -->
+  <text x="340" y="558" fill="#ccc" font-size="10" class="mono">Trigger updated and is set to deactivate</text>
+  <text x="340" y="578" fill="#28c840" font-size="10" class="mono">ahlert@AEX-Ahlert</text>
+  <text x="480" y="578" fill="#ccc" font-size="10" class="mono">:~/Dev/Flyte/flyte-vscode$</text>
+  <rect x="680" y="568" width="8" height="14" fill="#ccc">
+    <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Status bar -->
+  <rect x="0" y="680" width="960" height="20" fill="#007acc"/>
+  <text x="15" y="694" fill="#fff" font-size="10" class="sans">Flyte</text>
+  <text x="860" y="694" fill="#fff" font-size="10" class="sans">Python 3.14.3</text>
+</svg>
