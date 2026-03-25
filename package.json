@@ -139,6 +139,11 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "flyte.deleteTrigger",
+        "title": "Flyte: Delete Trigger",
+        "icon": "$(trash)"
+      },
+      {
         "command": "flyte.activateTrigger",
         "title": "Flyte: Activate Trigger",
         "icon": "$(play)"
@@ -257,6 +262,11 @@
         {
           "command": "flyte.activateTrigger",
           "when": "viewItem == flyteTriggerPaused",
+          "group": "inline"
+        },
+        {
+          "command": "flyte.deleteTrigger",
+          "when": "viewItem =~ /^flyteTrigger/",
           "group": "inline"
         },
         {

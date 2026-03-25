@@ -196,6 +196,23 @@ export async function activate(
     vscode.commands.registerCommand(COMMANDS.REFRESH_SECRETS, () => {
       secretTreeProvider.refresh();
     }),
+    vscode.commands.registerCommand(COMMANDS.DELETE_TRIGGER, async (item: any) => {
+      if (!item?.triggerName || !item?.taskName || !item?.cluster) return;
+      const confirm = await vscode.window.showWarningMessage(
+        `Delete trigger "${item.triggerName}" from cluster?`, { modal: true }, 'Delete', 'Cancel',
+      );
+      if (confirm !== 'Delete') return;
+      const terminal = vscode.window.createTerminal('Flyte: Delete Trigger');
+      terminal.show();
+      const globalArgs: string[] = ['flyte'];
+      if (item.cluster.endpoint) globalArgs.push('--endpoint', item.cluster.endpoint);
+      if (item.cluster.insecure) globalArgs.push('--insecure');
+      const cmdArgs = ['delete', 'trigger', item.triggerName, item.taskName];
+      if (item.cluster.project) cmdArgs.push('--project', item.cluster.project);
+      if (item.cluster.domain) cmdArgs.push('--domain', item.cluster.domain);
+      terminal.sendText([...globalArgs, ...cmdArgs].join(' '));
+      setTimeout(() => triggerTreeProvider.refresh(), 3000);
+    }),
     vscode.commands.registerCommand(COMMANDS.ACTIVATE_TRIGGER, async (item: any) => {
       if (!item?.triggerName || !item?.taskName || !item?.cluster) return;
       const terminal = vscode.window.createTerminal('Flyte: Activate Trigger');
