@@ -105,6 +105,12 @@ export class RunTreeProvider
     new vscode.EventEmitter<RunTreeItem | undefined | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
+  private clusterGetter: () => import('./clusterTreeProvider.js').ClusterConfig[];
+
+  constructor(clusterGetter?: () => import('./clusterTreeProvider.js').ClusterConfig[]) {
+    this.clusterGetter = clusterGetter ?? (() => []);
+  }
+
   refresh(): void {
     this._onDidChangeTreeData.fire();
   }
@@ -114,15 +120,41 @@ export class RunTreeProvider
   }
 
   async getChildren(): Promise<RunTreeItem[]> {
-    const dbPath = findCacheDb();
-    if (!dbPath) {
-      console.log('[Flyte Runs] No cache.db found');
-      return [];
-    }
-    console.log(`[Flyte Runs] Reading from ${dbPath}`);
+    const items: RunTreeItem[] = [];
 
-    const runs = await queryRuns(dbPath);
-    console.log(`[Flyte Runs] Found ${runs.length} runs`);
-    return runs.map((r) => new RunTreeItem(r));
+    // Remote runs from clusters
+    const { queryFlyteCli } = await import('../cli/cliQuery.js');
+    const clusters = this.clusterGetter();
+    if (clusters.length > 0) {
+      const cluster = clusters.find(c => c.project && c.domain) ?? clusters[0];
+      try {
+        const data = await queryFlyteCli(['run', '--limit', '20'], cluster);
+        for (const r of data) {
+          const runName = r.action?.id?.run?.name ?? r.name ?? '';
+          const taskName = r.action?.metadata?.task?.shortName ?? r.action?.metadata?.funtionName ?? '';
+          const phase = r.action?.state?.phase ?? '';
+          const status = phase.replace('PHASE_', '').toLowerCase() || 'unknown';
+          if (runName) {
+            items.push(new RunTreeItem({ runName, taskName, status }));
+          }
+        }
+      } catch {
+        // Remote query failed, continue with local
+      }
+    }
+
+    // Local runs from SQLite
+    const dbPath = findCacheDb();
+    if (dbPath) {
+      const localRuns = await queryRuns(dbPath);
+      for (const r of localRuns) {
+        // Avoid duplicates
+        if (!items.some(i => i.run.runName === r.runName)) {
+          items.push(new RunTreeItem(r));
+        }
+      }
+    }
+
+    return items;
   }
 }

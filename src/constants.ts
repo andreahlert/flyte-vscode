@@ -18,6 +18,9 @@ export const COMMANDS = {
   PAUSE_CLUSTER: 'flyte.pauseCluster',
   RESUME_CLUSTER: 'flyte.resumeCluster',
   OPEN_TUI: 'flyte.openTui',
+  CREATE_SECRET: 'flyte.createSecret',
+  REFRESH_SECRETS: 'flyte.refreshSecrets',
+  REFRESH_TRIGGERS: 'flyte.refreshTriggers',
 } as const;
 
 export const VIEWS = {
@@ -26,6 +29,8 @@ export const VIEWS = {
   RUNS: 'flyte.runs',
   APPS: 'flyte.apps',
   CLUSTERS: 'flyte.clusters',
+  SECRETS: 'flyte.secrets',
+  TRIGGERS: 'flyte.triggers',
 } as const;
 
 export const CONFIG = {

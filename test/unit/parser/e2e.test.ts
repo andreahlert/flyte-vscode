@@ -68,11 +68,10 @@ describe('E2E: pipeline.py', () => {
       expect(env!.params['interruptible']).toBe('True');
     });
 
-    it('train_env has GPU resources and secrets', () => {
+    it('train_env has GPU resources', () => {
       const env = info.environments.find((e) => e.varName === 'train_env');
       expect(env).toBeDefined();
       expect(env!.name).toBe('gpu-training');
-      expect(env!.params['secrets']).toContain('wandb-api-key');
     });
 
     it('eval_env is lightweight', () => {

@@ -34,7 +34,6 @@ train_env = flyte.TaskEnvironment(
         gpu="A100:1",
         shm="auto",
     ),
-    secrets=flyte.Secret("wandb-api-key", as_env_var="WANDB_API_KEY"),
     cache=flyte.Cache(
         behavior="auto",
         ignored_inputs=("seed",),
@@ -64,10 +63,6 @@ distributed_env = flyte.TaskEnvironment(
         shm="auto",
         disk="100Gi",
     ),
-    secrets=[
-        flyte.Secret("wandb-api-key", as_env_var="WANDB_API_KEY"),
-        flyte.Secret("hf-token", as_env_var="HF_TOKEN"),
-    ],
     env_vars={
         "NCCL_DEBUG": "INFO",
         "TOKENIZERS_PARALLELISM": "false",

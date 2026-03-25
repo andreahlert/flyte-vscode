@@ -9,6 +9,8 @@ import { TaskTreeProvider } from './views/taskTreeProvider.js';
 import { RunTreeProvider } from './views/runTreeProvider.js';
 import { AppTreeProvider } from './views/appTreeProvider.js';
 import { ClusterTreeProvider } from './views/clusterTreeProvider.js';
+import { SecretTreeProvider } from './views/secretTreeProvider.js';
+import { TriggerTreeProvider } from './views/triggerTreeProvider.js';
 import { handleRunTask, setRunClusterProvider } from './commands/runCommand.js';
 import { handleDeploy, setDeployClusterProvider } from './commands/deployCommand.js';
 import { handleBuild, setBuildClusterProvider } from './commands/buildCommand.js';
@@ -62,8 +64,10 @@ export async function activate(
   // Tree view providers
   const envTreeProvider = new EnvironmentTreeProvider();
   const taskTreeProvider = new TaskTreeProvider();
-  const runTreeProvider = new RunTreeProvider();
+  const runTreeProvider = new RunTreeProvider(getClusters);
   const appTreeProvider = new AppTreeProvider();
+  const secretTreeProvider = new SecretTreeProvider(getClusters);
+  const triggerTreeProvider = new TriggerTreeProvider(getClusters);
 
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider(VIEWS.CLUSTERS, clusterTreeProvider),
@@ -71,6 +75,8 @@ export async function activate(
     vscode.window.registerTreeDataProvider(VIEWS.TASKS, taskTreeProvider),
     vscode.window.registerTreeDataProvider(VIEWS.RUNS, runTreeProvider),
     vscode.window.registerTreeDataProvider(VIEWS.APPS, appTreeProvider),
+    vscode.window.registerTreeDataProvider(VIEWS.SECRETS, secretTreeProvider),
+    vscode.window.registerTreeDataProvider(VIEWS.TRIGGERS, triggerTreeProvider),
   );
 
   // Register commands
@@ -90,6 +96,8 @@ export async function activate(
       taskTreeProvider.refresh();
       runTreeProvider.refresh();
       appTreeProvider.refresh();
+      secretTreeProvider.refresh();
+      triggerTreeProvider.refresh();
       codeLensProvider.refresh();
     }),
     vscode.commands.registerCommand(COMMANDS.CONNECT_UNION, () => {
@@ -112,6 +120,33 @@ export async function activate(
     }),
     vscode.commands.registerCommand(COMMANDS.RESUME_CLUSTER, (item) => {
       clusterTreeProvider.resumeCluster(item);
+    }),
+    vscode.commands.registerCommand(COMMANDS.CREATE_SECRET, async () => {
+      const clusters = getClusters();
+      if (clusters.length === 0) {
+        vscode.window.showErrorMessage('No clusters configured.');
+        return;
+      }
+      const cluster = clusters.find(c => c.project) ?? clusters[0];
+      const name = await vscode.window.showInputBox({ prompt: 'Secret name', ignoreFocusOut: true });
+      if (!name) return;
+      const value = await vscode.window.showInputBox({ prompt: 'Secret value', password: true, ignoreFocusOut: true });
+      if (!value) return;
+
+      const terminal = vscode.window.createTerminal('Flyte: Create Secret');
+      terminal.show();
+      const args = [`flyte create secret "${name}" --value "${value}"`];
+      if (cluster.endpoint) args.push(`--endpoint ${cluster.endpoint}`);
+      if (cluster.project) args.push(`--project ${cluster.project}`);
+      if (cluster.domain) args.push(`--domain ${cluster.domain}`);
+      terminal.sendText(args.join(' '));
+      setTimeout(() => secretTreeProvider.refresh(), 3000);
+    }),
+    vscode.commands.registerCommand(COMMANDS.REFRESH_SECRETS, () => {
+      secretTreeProvider.refresh();
+    }),
+    vscode.commands.registerCommand(COMMANDS.REFRESH_TRIGGERS, () => {
+      triggerTreeProvider.refresh();
     }),
     vscode.commands.registerCommand(COMMANDS.OPEN_TUI, () => {
       const terminal = vscode.window.createTerminal('Flyte TUI');
