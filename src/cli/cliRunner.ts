@@ -81,11 +81,14 @@ export async function runTask(
   extraArgs: string[] = [],
 ): Promise<vscode.Terminal> {
   if (cluster) {
+    const globals = [
+      ...clusterArgs(cluster),
+      '--project', cluster.project ?? 'flytesnacks',
+      '--domain', cluster.domain ?? 'development',
+    ];
     return runInTerminal(
       'run',
       [
-        '--project', cluster.project ?? 'flytesnacks',
-        '--domain', cluster.domain ?? 'development',
         ...registryArgs(cluster),
         '--follow',
         filePath,
@@ -93,7 +96,7 @@ export async function runTask(
         ...extraArgs,
       ],
       `Run: ${taskName} (${cluster.name})`,
-      clusterArgs(cluster),
+      globals,
     );
   }
   ensureLocalPersistence(filePath);
@@ -114,15 +117,18 @@ export async function deploy(
     ...registryArgs(cluster),
     filePath,
     ...(envVarName ? [envVarName] : []),
+    ...extraArgs,
+  ];
+  const globals = [
+    ...clusterArgs(cluster),
     '--project', cluster?.project ?? 'flytesnacks',
     '--domain', cluster?.domain ?? 'development',
-    ...extraArgs,
   ];
   return runInTerminal(
     'deploy',
     cmdArgs,
     `Flyte: Deploy${envVarName ? ` ${envVarName}` : ''}`,
-    clusterArgs(cluster),
+    globals,
   );
 }
 
