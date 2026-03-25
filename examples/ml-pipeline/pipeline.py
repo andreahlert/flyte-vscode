@@ -2,13 +2,8 @@
 Flyte V2 ML Pipeline - Comprehensive Example
 =============================================
 
-This project demonstrates all Flyte V2 features supported by the
-flyte-vscode extension: TaskEnvironment, @env.task, Resources (CPU/GPU),
-Cache, Triggers, Secrets, AppEnvironment, flyte.map, flyte.group,
-flyte.trace, flyte.run, and flyte.deploy.
-
-Pipeline: end-to-end ML training with data ingestion, preprocessing,
-distributed training, evaluation, and model serving.
+Demonstrates Flyte V2 features: TaskEnvironment, @env.task,
+Resources (CPU/GPU), Cache, Triggers, Groups, flyte.run, and flyte.deploy.
 """
 
 import asyncio
@@ -26,7 +21,7 @@ train_env = flyte.TaskEnvironment(
     name="gpu-training",
     image=(
         flyte.Image.from_debian_base()
-        .with_pip_packages("transformers", "datasets", "wandb", "accelerate")
+        .with_pip_packages("transformers", "datasets", "accelerate")
     ),
     resources=flyte.Resources(
         cpu=(4, 8),
@@ -54,7 +49,7 @@ distributed_env = flyte.TaskEnvironment(
     name="distributed-training",
     image=(
         flyte.Image.from_debian_base()
-        .with_pip_packages("transformers", "datasets", "wandb", "accelerate", "deepspeed")
+        .with_pip_packages("transformers", "datasets", "accelerate", "deepspeed")
     ),
     resources=flyte.Resources(
         cpu=8,
@@ -69,7 +64,7 @@ distributed_env = flyte.TaskEnvironment(
     },
 )
 
-# CPU environment for data processing tasks (depends on all others for pipeline orchestration)
+# CPU environment for data processing (depends on all others for orchestration)
 data_env = flyte.TaskEnvironment(
     name="data-processing",
     image=(
@@ -90,17 +85,16 @@ data_env = flyte.TaskEnvironment(
 
 @data_env.task
 async def fetch_dataset(
-    source_url: str,
+    source_url: str = "s3://datasets/text-classification/v2",
     split: str = "train",
 ) -> dict:
     """Download and validate a dataset from a remote source."""
-    data = {
+    return {
         "source": source_url,
         "split": split,
         "num_samples": 50000,
         "columns": ["text", "label"],
     }
-    return data
 
 
 @data_env.task(retries=2, timeout=timedelta(minutes=30))
@@ -164,15 +158,7 @@ async def create_train_val_split(
 # Training Tasks
 # =============================================================================
 
-@train_env.task(
-    retries=1,
-    timeout=timedelta(hours=4),
-    triggers=flyte.Trigger(
-        name="nightly-retrain",
-        automation=flyte.Cron("0 2 * * *", timezone="America/Sao_Paulo"),
-        description="Retrain model nightly at 2 AM BRT",
-    ),
-)
+@train_env.task(retries=1, timeout=timedelta(hours=4))
 async def train_model(
     train_data: dict,
     model_name: str = "bert-base-uncased",
@@ -182,7 +168,7 @@ async def train_model(
     seed: int = 42,
 ) -> dict:
     """Fine-tune a transformer model on the processed dataset."""
-    result = {
+    return {
         "model_name": model_name,
         "epochs": epochs,
         "learning_rate": learning_rate,
@@ -192,13 +178,9 @@ async def train_model(
         "val_loss": 0.312,
         "checkpoint_path": f"s3://models/{model_name}/checkpoint-final",
     }
-    return result
 
 
-@distributed_env.task(
-    retries=1,
-    timeout=timedelta(hours=12),
-)
+@distributed_env.task(retries=1, timeout=timedelta(hours=12))
 async def train_large_model(
     train_data: dict,
     model_name: str = "meta-llama/Llama-3-8B",
@@ -209,7 +191,7 @@ async def train_large_model(
     seed: int = 42,
 ) -> dict:
     """Fine-tune a large model using distributed training with DeepSpeed."""
-    result = {
+    return {
         "model_name": model_name,
         "epochs": epochs,
         "effective_batch_size": batch_size * gradient_accumulation_steps * 4,
@@ -217,7 +199,6 @@ async def train_large_model(
         "train_loss": 0.189,
         "checkpoint_path": f"s3://models/{model_name}/checkpoint-final",
     }
-    return result
 
 
 # =============================================================================
@@ -230,7 +211,7 @@ async def evaluate_model(
     val_data: dict,
 ) -> dict:
     """Run evaluation metrics on the trained model."""
-    metrics = {
+    return {
         "model_name": model_result["model_name"],
         "accuracy": 0.923,
         "f1_score": 0.918,
@@ -239,7 +220,6 @@ async def evaluate_model(
         "val_tokens": val_data["val_tokens"],
         "checkpoint_path": model_result["checkpoint_path"],
     }
-    return metrics
 
 
 @eval_env.task
@@ -254,15 +234,13 @@ async def compare_models(evaluations: list[dict]) -> dict:
     }
 
 
-@eval_env.task(
-    triggers=flyte.Trigger.weekly(name="weekly-report"),
-)
+@eval_env.task
 async def generate_report(
     comparison: dict,
     data_stats: dict,
 ) -> str:
     """Generate a markdown training report."""
-    report = f"""# Training Report
+    return f"""# Training Report
 
 ## Data
 - Total tokens: {data_stats['total_tokens']:,}
@@ -273,14 +251,19 @@ async def generate_report(
 - F1 Score: {comparison['best_f1']:.3f}
 - Candidates evaluated: {comparison['candidates_evaluated']}
 """
-    return report
 
 
 # =============================================================================
 # Orchestration: Main Pipeline
 # =============================================================================
 
-@data_env.task
+@data_env.task(
+    triggers=flyte.Trigger(
+        name="nightly-pipeline",
+        automation=flyte.Cron("0 2 * * *", timezone="America/Sao_Paulo"),
+        description="Run full pipeline nightly at 2 AM BRT",
+    ),
+)
 async def run_training_pipeline(
     source_url: str = "s3://datasets/text-classification/v2",
     num_shards: int = 8,
@@ -340,9 +323,4 @@ async def run_training_pipeline(
 # =============================================================================
 
 if __name__ == "__main__":
-    flyte.run(run_training_pipeline(
-        source_url="s3://datasets/text-classification/v2",
-        num_shards=8,
-        model_name="bert-base-uncased",
-        epochs=3,
-    ))
+    flyte.run(run_training_pipeline())
