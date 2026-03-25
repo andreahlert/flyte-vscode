@@ -47,9 +47,9 @@ export function queryFlyteCli(
         const clean = stdout
           .replace(/\x1b\[[0-9;]*m/g, '')
           .replace(/'/g, '"')
-          .replace(/None/g, 'null')
-          .replace(/True/g, 'true')
-          .replace(/False/g, 'false');
+          .replace(/\bNone\b/g, 'null')
+          .replace(/\bTrue\b/g, 'true')
+          .replace(/\bFalse\b/g, 'false');
         const parsed = JSON.parse(clean);
         resolve(Array.isArray(parsed) ? parsed : [parsed]);
       } catch {

@@ -49,9 +49,10 @@ export class TriggerTreeProvider
     const data = await queryFlyteCli(['trigger', '--limit', '30'], cluster);
 
     return data.map((t: any) => {
-      const name = t.name ?? t.id?.name ?? 'unknown';
-      const taskName = t.taskName ?? t.task_name ?? t.id?.taskName ?? '';
-      const active = t.active !== false && t.status !== 'INACTIVE';
+      const nameObj = t.id?.name ?? {};
+      const name = nameObj.name ?? t.name ?? 'unknown';
+      const taskName = nameObj.taskName ?? t.taskName ?? '';
+      const active = t.active === true;
       return new TriggerTreeItem(name, taskName, active, cluster);
     });
   }
